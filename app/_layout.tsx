@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 import { ClerkProvider } from "@clerk/clerk-expo";
 import { tokenCache } from '@clerk/clerk-expo/token-cache'
-import { Slot } from 'expo-router'
+
 
 export default function RootLayout() {
   return (
@@ -13,12 +13,7 @@ export default function RootLayout() {
             headerShown: false,
           }}
         />
-        <Stack.Screen
-          name="login"
-          options={{
-            headerShown: false,
-          }}
-        />
+        
         <Stack.Screen
           name="signUpScreen"
           options={{
@@ -31,6 +26,19 @@ export default function RootLayout() {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="screens/home"
+          options={{
+            headerShown: false,
+          }}
+        />
+         <Stack.Screen
+          name="(auth)/sign-in"
+          options={{
+            headerShown: false,
+          }}
+        />
+        
       </Stack>
     </ClerkProvider>
   );

@@ -15,7 +15,7 @@ const WelcomeScreen = () => {
 
   return (
     <ImageBackground
-      source={require('C:/Users/gyebi/Desktop/Autism Detection App/ASDApp/assets/images/autism.jpg')}
+      source={require('C:/Users/gyebi/Desktop/Autism Detection App/ASDApp/assets/images/brain.png')}
       style={styles.background}
       resizeMode="cover"
     >

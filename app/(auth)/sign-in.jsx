@@ -9,10 +9,13 @@ export default function Page() {
 
   const [emailAddress, setEmailAddress] = React.useState('')
   const [password, setPassword] = React.useState('')
+  const [error, setError] = React.useState('') // <-- Add error state
 
   // Handle the submission of the sign-in form
   const onSignInPress = async () => {
     if (!isLoaded) return
+
+    setError(''); // Clear previous errors
 
     // Start the sign-in process using the email and password provided
     try {
@@ -25,16 +28,17 @@ export default function Page() {
       // and redirect the user
       if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId })
-        router.replace('/')
+        router.replace('/screens/home')
       } else {
         // If the status isn't complete, check why. User might need to
         // complete further steps.
+        setError('Sign in not complete. Please check your credentials or try again.')
         console.error(JSON.stringify(signInAttempt, null, 2))
       }
     } catch (err) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
-      console.error(JSON.stringify(err, null, 2))
+      // Display a user-friendly error message
+      setError('Invalid email or password. Please try again.')
+      
     }
   }
 
@@ -48,6 +52,9 @@ export default function Page() {
       <View style={styles.overlay}>
         <View style={styles.formContainer}>
           <Text style={styles.title}>Sign In</Text>
+          {error ? (
+            <Text style={styles.errorText}>{error}</Text>
+          ) : null}
           <TextInput
             autoCapitalize="none"
             value={emailAddress}
@@ -156,5 +163,11 @@ const styles = StyleSheet.create({
     color: '#1B5E20',
     fontSize: 15,
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 12,
+    textAlign: 'center',
   },
 })
