@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   footer: {
-    marginTop: 100,
+    marginTop: 20,
     alignItems: 'center',
   },
   footerText: {
