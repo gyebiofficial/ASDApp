@@ -33,7 +33,13 @@ export default function RootLayout() {
           }}
         />
          <Stack.Screen
-          name="(auth)/sign-in"
+          name="screens/about"
+          options={{
+            headerShown: false,
+          }}
+        />
+         <Stack.Screen
+          name="/(auth)"
           options={{
             headerShown: false,
           }}

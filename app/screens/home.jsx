@@ -25,7 +25,7 @@ export default function Home() {
     try {
       await signOut();
       Alert.alert('Signed out', 'You have been signed out successfully.');
-      router.replace('/sign-in');
+      router.replace('/screens/WelcomeScreen');
     } catch (err) {
       Alert.alert('Error', 'Could not sign out. Please try again.');
     }
