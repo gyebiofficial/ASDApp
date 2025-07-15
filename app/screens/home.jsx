@@ -1,9 +1,427 @@
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
+// import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Animated, Dimensions, Platform, StatusBar } from 'react-native';
+// import { useUser, useAuth } from '@clerk/clerk-expo';
+// import { useRouter } from 'expo-router';
+// import Entypo from '@expo/vector-icons/Entypo';
+// import AntDesign from '@expo/vector-icons/AntDesign';
+// import childImg from 'C:/Users/gyebi/Desktop/Autism Detection App/ASDApp/assets/images/child.png';
+
+// const SCREEN_WIDTH = Dimensions.get('window').width;
+
+// export default function Home() {
+//   const { user } = useUser();
+//   const { signOut } = useAuth();
+//   const router = useRouter();
+
+//   // Sidebar for main menu (left)
+//   const [sidebarVisible, setSidebarVisible] = useState(false);
+//   const sidebarAnim = React.useRef(new Animated.Value(-SCREEN_WIDTH * 0.7)).current;
+
+//   // Sidebar for profile (right)
+//   const [profileSidebarVisible, setProfileSidebarVisible] = useState(false);
+//   const profileSidebarAnim = React.useRef(new Animated.Value(SCREEN_WIDTH)).current;
+
+//   const handleSignOut = async () => {
+//     try {
+//       await signOut();
+//       Alert.alert('Signed out', 'You have been signed out successfully.');
+//       router.replace('/screens/WelcomeScreen');
+//     } catch (err) {
+//       Alert.alert('Error', 'Could not sign out. Please try again.');
+//     }
+//   };
+
+//   // Open/close main menu sidebar
+//   const openSidebar = () => {
+//     setSidebarVisible(true);
+//     Animated.timing(sidebarAnim, {
+//       toValue: 0,
+//       duration: 250,
+//       useNativeDriver: false,
+//     }).start();
+//   };
+//   const closeSidebar = () => {
+//     Animated.timing(sidebarAnim, {
+//       toValue: -SCREEN_WIDTH * 0.7,
+//       duration: 200,
+//       useNativeDriver: false,
+//     }).start(() => setSidebarVisible(false));
+//   };
+
+//   // Open/close profile sidebar
+//   const openProfileSidebar = () => {
+//     setProfileSidebarVisible(true);
+//     Animated.timing(profileSidebarAnim, {
+//       toValue: 0,
+//       duration: 250,
+//       useNativeDriver: false,
+//     }).start();
+//   };
+//   const closeProfileSidebar = () => {
+//     Animated.timing(profileSidebarAnim, {
+//       toValue: -SCREEN_WIDTH * 0.7,
+//       duration: 200,
+//       useNativeDriver: false,
+//     }).start(() => setProfileSidebarVisible(false));
+//   };
+
+//   const handleSidebarNav = (route) => {
+//     closeSidebar();
+//     setTimeout(() => {
+//       if (route === 'home') router.replace('/screens/home');
+//       if (route === 'detect') Alert.alert('Detect', 'Detection feature coming soon!');
+//       if (route === 'about') router.replace('/screens/about');
+//       if (route === 'dashboard') Alert.alert('Dashboard', 'Dashboard coming soon!');
+//     }, 250);
+//   };
+
+//   return (
+//     <View style={styles.root}>
+//       {/* Menu Bar Header */}
+//       <View style={styles.menuBarHeader}>
+//         <View style={styles.menuBar}>
+//           <Image
+//             source={require('C:/Users/gyebi/Desktop/Autism Detection App/ASDApp/assets/images/Auti1.png')}
+//             style={styles.menuBarLogo}
+//             resizeMode="contain"
+//           />
+//           <View style={styles.menuBarIconsRight}>
+//             <TouchableOpacity style={styles.iconButton} onPress={openSidebar}>
+//               <Entypo name="menu" size={28} color="#1565c0" />
+//             </TouchableOpacity>
+//             <TouchableOpacity style={styles.iconButton} onPress={openProfileSidebar}>
+//               <AntDesign name="user" size={24} color="#1565c0" />
+//             </TouchableOpacity>
+//           </View>
+//         </View>
+//       </View>
+
+//       {/* Main Sidebar Overlay */}
+//       {sidebarVisible && (
+//         <TouchableOpacity style={styles.sidebarOverlay} activeOpacity={1} onPress={closeSidebar} />
+//       )}
+//       {/* Main Sidebar (left) */}
+//       <Animated.View style={[styles.sidebar, { left: sidebarAnim }]}>
+//         <View style={styles.sidebarHeader}>
+//           <Text style={styles.sidebarTitle}>Menu</Text>
+//           <TouchableOpacity onPress={closeSidebar}>
+//             <Entypo name="cross" size={28} color="#1565c0" />
+//           </TouchableOpacity>
+//         </View>
+//         <TouchableOpacity style={styles.sidebarButton} onPress={() => handleSidebarNav('home')}>
+//           <Entypo name="home" size={22} color="#1565c0" style={styles.sidebarIcon} />
+//           <Text style={styles.sidebarButtonText}>Home</Text>
+//         </TouchableOpacity>
+//         <TouchableOpacity style={styles.sidebarButton} onPress={() => handleSidebarNav('detect')}>
+//           <Entypo name="magnifying-glass" size={22} color="#1565c0" style={styles.sidebarIcon} />
+//           <Text style={styles.sidebarButtonText}>Detect</Text>
+//         </TouchableOpacity>
+//         <TouchableOpacity style={styles.sidebarButton} onPress={() => handleSidebarNav('dashboard')}>
+//           <AntDesign name="dashboard" size={22} color="#1565c0" style={styles.sidebarIcon} />
+//           <Text style={styles.sidebarButtonText}>Dashboard</Text>
+//         </TouchableOpacity>
+//         <TouchableOpacity style={styles.sidebarButton} onPress={() => handleSidebarNav('about')}>
+//           <Entypo name="info" size={22} color="#1565c0" style={styles.sidebarIcon} />
+//           <Text style={styles.sidebarButtonText}>About</Text>
+//         </TouchableOpacity>
+//       </Animated.View>
+
+//       {/* Profile Sidebar Overlay */}
+//       {profileSidebarVisible && (
+//         <TouchableOpacity style={styles.profileSidebarOverlay} activeOpacity={1} onPress={closeProfileSidebar} />
+//       )}
+//       {/* Profile Sidebar (right) */}
+//       <Animated.View style={[styles.profileSidebar, { right: profileSidebarAnim }]}>
+//         <View style={styles.profileSidebarHeader}>
+//           <Text style={styles.profileSidebarTitle}>Profile</Text>
+//           <TouchableOpacity onPress={closeProfileSidebar}>
+//             <Entypo name="cross" size={28} color="#1565c0" />
+//           </TouchableOpacity>
+//         </View>
+//         <View style={styles.profileInfo}>
+//           <AntDesign name="user" size={48} color="#1565c0" style={{ marginBottom: 10 }} />
+//           <Text style={styles.profileName}>{user?.fullName || 'User'}</Text>
+//           <Text style={styles.profileEmail}>{user?.primaryEmailAddress?.emailAddress || ''}</Text>
+//         </View>
+//         <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+//           <Text style={styles.signOutButtonText}>Sign Out</Text>
+//         </TouchableOpacity>
+//       </Animated.View>
+
+//       <ScrollView contentContainerStyle={styles.container}>
+//         {/* Welcome Section */}
+//         <View style={styles.welcomeSection}>
+//           <Text style={styles.title}>
+//             Welcome{user?.firstName ? `, ${user.firstName}` : ''}!
+//           </Text>
+//           {user?.fullName && (
+//             <Text style={styles.userNameText}>
+//               Signed in as: {user.fullName}
+//             </Text>
+//           )}
+//           <Text style={styles.subtitle}>
+//             Empowering early detection and support for autism spectrum disorder.
+//           </Text>
+//           <Image
+//             source={childImg}
+//             style={styles.childImage}
+//             resizeMode="contain"
+//           />
+//           <TouchableOpacity
+//             style={styles.detectButton}
+//             onPress={() => Alert.alert('Detect', 'Detection feature coming soon!')}
+//           >
+//             <Text style={styles.detectButtonText}>Start Detection</Text>
+//           </TouchableOpacity>
+//         </View>
+
+       
+//         {/* Footer */}
+//         <View style={styles.footer}>
+//           <Text style={styles.footerText}>© 2025 Autism Detection App</Text>
+//         </View>
+//       </ScrollView>
+//     </View>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   root: {
+//     flex: 1,
+//     backgroundColor: '#f6f8fc',
+//   },
+//   sidebarOverlay: {
+//     position: 'absolute',
+//     top: 0,
+//     left: 0,
+//     width: '100%',
+//     height: '100%',
+//     backgroundColor: 'rgba(0,0,0,0.25)',
+//     zIndex: 50,
+//   },
+//   sidebar: {
+//     position: 'absolute',
+//     top: 0,
+//     left: 0,
+//     width: '70%',
+//     height: '100%',
+//     backgroundColor: '#fff',
+//     zIndex: 100,
+//     paddingTop: 60,
+//     paddingHorizontal: 18,
+//     elevation: 10,
+//     shadowColor: '#1565c0',
+//     shadowOpacity: 0.15,
+//     shadowRadius: 10,
+//     shadowOffset: { width: 2, height: 0 },
+//   },
+//   sidebarHeader: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     marginBottom: 24,
+//   },
+//   sidebarTitle: {
+//     fontSize: 22,
+//     fontWeight: 'bold',
+//     color: '#1565c0',
+//   },
+//   sidebarButton: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     paddingVertical: 14,
+//     paddingHorizontal: 8,
+//     borderRadius: 8,
+//     marginBottom: 8,
+//   },
+//   sidebarIcon: {
+//     marginRight: 14,
+//   },
+//   sidebarButtonText: {
+//     fontSize: 17,
+//     color: '#1565c0',
+//     fontWeight: '600',
+//   },
+//   // Profile Sidebar Styles
+//   profileSidebarOverlay: {
+//     position: 'absolute',
+//     top: 0,
+//     right: 0,
+//     width: '100%',
+//     height: '100%',
+//     backgroundColor: 'rgba(0,0,0,0.25)',
+//     zIndex: 50,
+//   },
+//   profileSidebar: {
+//     position: 'absolute',
+//     top: 0,
+//     right: 0,
+//     width: '70%',
+//     height: '100%',
+//     backgroundColor: '#fff',
+//     zIndex: 101,
+//     paddingTop: 60,
+//     paddingHorizontal: 18,
+//     elevation: 10,
+//     shadowColor: '#1565c0',
+//     shadowOpacity: 0.15,
+//     shadowRadius: 10,
+//     shadowOffset: { width: -2, height: 0 },
+//     alignItems: 'center',
+//   },
+//   profileSidebarHeader: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     width: '100%',
+//     marginBottom: 24,
+//   },
+//   profileSidebarTitle: {
+//     fontSize: 22,
+//     fontWeight: 'bold',
+//     color: '#1565c0',
+//   },
+//   profileInfo: {
+//     alignItems: 'center',
+//     marginBottom: 30,
+//   },
+//   profileName: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     color: '#1565c0',
+//     marginBottom: 4,
+//   },
+//   profileEmail: {
+//     fontSize: 15,
+//     color: '#333',
+//     marginBottom: 10,
+//   },
+//   menuBarHeader: {
+//     width: '100%',
+//     backgroundColor: '#fff',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     position: 'relative',
+//     zIndex: 100,
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#e3eaf2',
+//     elevation: 6,
+//     shadowColor: '#1565c0',
+//     shadowOpacity: 0.08,
+//     shadowRadius: 8,
+//     shadowOffset: { width: 0, height: 2 },
+//     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 16 : 16, // Add friendly top padding
+//     paddingBottom: 8, // Add bottom padding for breathing room
+//     height: undefined, // Remove fixed height for flexibility
+//   },
+//   menuBar: {
+//     width: '92%',
+//     minHeight: 48,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     justifyContent: 'space-between',
+//   },
+//   menuBarLogo: {
+//     width: 100,
+//     height: 58,
+//   },
+//   menuBarIconsRight: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//   },
+//   iconButton: {
+//     padding: 8,
+//     borderRadius: 20,
+//     marginLeft: 8,
+//   },
+//   container: {
+//     alignItems: 'center',
+//     paddingTop: 110,
+//     paddingBottom: 30,
+//     minHeight: '100%',
+//   },
+//   welcomeSection: {
+//     alignItems: 'center',
+//     marginBottom: 24,
+//     width: '90%',
+//   },
+//   title: {
+//     fontSize: 28,
+//     fontWeight: 'bold',
+//     color: '#1565c0',
+//     marginBottom: 8,
+//     textAlign: 'center',
+//   },
+//   subtitle: {
+//     fontSize: 16,
+//     color: '#333',
+//     textAlign: 'center',
+//     marginBottom: 10,
+//   },
+  
+//   signOutButton: {
+//     backgroundColor: '#1565c0',
+//     paddingVertical: 12,
+//     paddingHorizontal: 40,
+//     borderRadius: 8,
+//     marginTop: 10,
+//     alignSelf: 'center',
+//     elevation: 2,
+//   },
+//   signOutButtonText: {
+//     color: '#fff',
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//     letterSpacing: 1,
+//   },
+//   footer: {
+//     marginTop: 20,
+//     alignItems: 'center',
+//   },
+//   footerText: {
+//     color: '#1565c0',
+//     fontSize: 15,
+//     fontWeight: '500',
+//   },
+//   userNameText: {
+//     fontSize: 16,
+//     color: '#1565c0',
+//     fontWeight: '600',
+//     marginBottom: 6,
+//     textAlign: 'center',
+//   },
+//   childImage: {
+//     width: 480,
+//     height: 300,
+//     marginVertical: 18,
+//     alignSelf: 'center',
+//   },
+//   detectButton: {
+//     backgroundColor: '#1565c0',
+//     paddingVertical: 14,
+//     paddingHorizontal: 40,
+//     borderRadius: 8,
+//     alignItems: 'center',
+//     marginTop: 70,
+//     elevation: 2,
+//     alignSelf: 'center',
+//   },
+//   detectButtonText: {
+//     color: '#fff',
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     letterSpacing: 1,
+//   },
+// });
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Animated, Dimensions, Platform, StatusBar } from 'react-native';
 import { useUser, useAuth } from '@clerk/clerk-expo';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import Entypo from '@expo/vector-icons/Entypo';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import Feather from '@expo/vector-icons/Feather';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import childImg from 'C:/Users/gyebi/Desktop/Autism Detection App/ASDApp/assets/images/child.png';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -13,54 +431,85 @@ export default function Home() {
   const { signOut } = useAuth();
   const router = useRouter();
 
-  // Sidebar for main menu (left)
-  const [sidebarVisible, setSidebarVisible] = useState(false);
-  const sidebarAnim = React.useRef(new Animated.Value(-SCREEN_WIDTH * 0.7)).current;
+  // Animation refs
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
 
-  // Sidebar for profile (right)
+  // Sidebar states
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const sidebarAnim = useRef(new Animated.Value(-SCREEN_WIDTH * 0.75)).current;
   const [profileSidebarVisible, setProfileSidebarVisible] = useState(false);
-  const profileSidebarAnim = React.useRef(new Animated.Value(SCREEN_WIDTH)).current;
+  const profileSidebarAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
+
+  // Component mount animation
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const handleSignOut = async () => {
-    try {
-      await signOut();
-      Alert.alert('Signed out', 'You have been signed out successfully.');
-      router.replace('/screens/WelcomeScreen');
-    } catch (err) {
-      Alert.alert('Error', 'Could not sign out. Please try again.');
-    }
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut();
+              router.replace('/screens/WelcomeScreen');
+            } catch (err) {
+              Alert.alert('Error', 'Could not sign out. Please try again.');
+            }
+          },
+        },
+      ]
+    );
   };
 
-  // Open/close main menu sidebar
+  // Sidebar animations
   const openSidebar = () => {
     setSidebarVisible(true);
     Animated.timing(sidebarAnim, {
       toValue: 0,
-      duration: 250,
+      duration: 300,
       useNativeDriver: false,
     }).start();
   };
+
   const closeSidebar = () => {
     Animated.timing(sidebarAnim, {
-      toValue: -SCREEN_WIDTH * 0.7,
-      duration: 200,
+      toValue: -SCREEN_WIDTH * 0.75,
+      duration: 250,
       useNativeDriver: false,
     }).start(() => setSidebarVisible(false));
   };
 
-  // Open/close profile sidebar
   const openProfileSidebar = () => {
     setProfileSidebarVisible(true);
     Animated.timing(profileSidebarAnim, {
       toValue: 0,
-      duration: 250,
+      duration: 300,
       useNativeDriver: false,
     }).start();
   };
+
   const closeProfileSidebar = () => {
     Animated.timing(profileSidebarAnim, {
-      toValue: -SCREEN_WIDTH * 0.7,
-      duration: 200,
+      toValue: SCREEN_WIDTH,
+      duration: 250,
       useNativeDriver: false,
     }).start(() => setProfileSidebarVisible(false));
   };
@@ -69,117 +518,231 @@ export default function Home() {
     closeSidebar();
     setTimeout(() => {
       if (route === 'home') router.replace('/screens/home');
-      if (route === 'detect') Alert.alert('Detect', 'Detection feature coming soon!');
+      if (route === 'detect') router.replace('/screens/detect'); // <-- Navigate to Detect screen
       if (route === 'about') router.replace('/screens/about');
       if (route === 'dashboard') Alert.alert('Dashboard', 'Dashboard coming soon!');
-    }, 250);
+    }, 300);
+  };
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
   };
 
   return (
     <View style={styles.root}>
-      {/* Menu Bar Header */}
-      <View style={styles.menuBarHeader}>
-        <View style={styles.menuBar}>
-          <Image
-            source={require('C:/Users/gyebi/Desktop/Autism Detection App/ASDApp/assets/images/Auti1.png')}
-            style={styles.menuBarLogo}
-            resizeMode="contain"
-          />
-          <View style={styles.menuBarIconsRight}>
-            <TouchableOpacity style={styles.iconButton} onPress={openSidebar}>
-              <Entypo name="menu" size={28} color="#1565c0" />
+      <StatusBar barStyle="light-content" backgroundColor="#1E40AF" />
+
+      {/* Enhanced Header */}
+      <LinearGradient
+        colors={['#1E40AF', '#3B82F6', '#60A5FA']}
+        style={styles.header}
+      >
+        <View style={styles.headerContent}>
+          <TouchableOpacity style={styles.menuButton} onPress={openSidebar}>
+            <Feather name="menu" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('C:/Users/gyebi/Desktop/Autism Detection App/ASDApp/assets/images/Auti1.png')}
+              style={styles.headerLogo}
+              resizeMode="contain"
+            />
+            <Text style={styles.logoText}>AutiScan</Text>
+          </View>
+
+          <TouchableOpacity style={styles.profileButton} onPress={openProfileSidebar}>
+            <View style={styles.profileAvatar}>
+              <Text style={styles.profileInitial}>
+                {user?.firstName?.charAt(0) || user?.fullName?.charAt(0) || 'U'}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+
+      {/* Main Sidebar */}
+      {sidebarVisible && (
+        <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={closeSidebar} />
+      )}
+      <Animated.View style={[styles.sidebar, { left: sidebarAnim }]}>
+        <LinearGradient colors={['#1E40AF', '#3B82F6']} style={styles.sidebarHeader}>
+          <View style={styles.sidebarTitleContainer}>
+            <MaterialIcons name="dashboard" size={24} color="#FFFFFF" />
+            <Text style={styles.sidebarTitle}>Navigation</Text>
+          </View>
+          <TouchableOpacity onPress={closeSidebar} style={styles.closeButton}>
+            <Feather name="x" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </LinearGradient>
+
+        <View style={styles.sidebarContent}>
+          {[
+            { key: 'home', icon: 'home', label: 'Home', iconLib: Feather },
+            { key: 'detect', icon: 'search', label: 'Detection', iconLib: Feather },
+            { key: 'dashboard', icon: 'bar-chart-2', label: 'Dashboard', iconLib: Feather },
+            { key: 'about', icon: 'info', label: 'About', iconLib: Feather },
+          ].map((item) => (
+            <TouchableOpacity
+              key={item.key}
+              style={styles.sidebarButton}
+              onPress={() => handleSidebarNav(item.key)}
+            >
+              <View style={styles.sidebarIconContainer}>
+                <item.iconLib name={item.icon} size={20} color="#1E40AF" />
+              </View>
+              <Text style={styles.sidebarButtonText}>{item.label}</Text>
+              <Feather name="chevron-right" size={16} color="#94A3B8" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton} onPress={openProfileSidebar}>
-              <AntDesign name="user" size={24} color="#1565c0" />
+          ))}
+        </View>
+      </Animated.View>
+
+      {/* Profile Sidebar */}
+      {profileSidebarVisible && (
+        <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={closeProfileSidebar} />
+      )}
+      <Animated.View style={[styles.profileSidebar, { right: profileSidebarAnim }]}>
+        <LinearGradient colors={['#1E40AF', '#3B82F6']} style={styles.profileSidebarHeader}>
+          <Text style={styles.profileSidebarTitle}>Profile</Text>
+          <TouchableOpacity onPress={closeProfileSidebar} style={styles.closeButton}>
+            <Feather name="x" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </LinearGradient>
+
+        <View style={styles.profileContent}>
+          <View style={styles.profileInfo}>
+            <View style={styles.profileAvatarLarge}>
+              <Text style={styles.profileInitialLarge}>
+                {user?.firstName?.charAt(0) || user?.fullName?.charAt(0) || 'U'}
+              </Text>
+            </View>
+            <Text style={styles.profileName}>{user?.fullName || 'User'}</Text>
+            <Text style={styles.profileEmail}>{user?.primaryEmailAddress?.emailAddress || ''}</Text>
+          </View>
+
+          <View style={styles.profileActions}>
+            <TouchableOpacity style={styles.profileActionButton}>
+              <Feather name="edit-2" size={20} color="#1E40AF" />
+              <Text style={styles.profileActionText}>Edit Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.profileActionButton}>
+              <Feather name="settings" size={20} color="#1E40AF" />
+              <Text style={styles.profileActionText}>Settings</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.profileActionButton}>
+              <Feather name="help-circle" size={20} color="#1E40AF" />
+              <Text style={styles.profileActionText}>Help & Support</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </View>
 
-      {/* Main Sidebar Overlay */}
-      {sidebarVisible && (
-        <TouchableOpacity style={styles.sidebarOverlay} activeOpacity={1} onPress={closeSidebar} />
-      )}
-      {/* Main Sidebar (left) */}
-      <Animated.View style={[styles.sidebar, { left: sidebarAnim }]}>
-        <View style={styles.sidebarHeader}>
-          <Text style={styles.sidebarTitle}>Menu</Text>
-          <TouchableOpacity onPress={closeSidebar}>
-            <Entypo name="cross" size={28} color="#1565c0" />
+          <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+            <LinearGradient colors={['#EF4444', '#DC2626']} style={styles.signOutGradient}>
+              <Feather name="log-out" size={20} color="#FFFFFF" />
+              <Text style={styles.signOutButtonText}>Sign Out</Text>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.sidebarButton} onPress={() => handleSidebarNav('home')}>
-          <Entypo name="home" size={22} color="#1565c0" style={styles.sidebarIcon} />
-          <Text style={styles.sidebarButtonText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.sidebarButton} onPress={() => handleSidebarNav('detect')}>
-          <Entypo name="magnifying-glass" size={22} color="#1565c0" style={styles.sidebarIcon} />
-          <Text style={styles.sidebarButtonText}>Detect</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.sidebarButton} onPress={() => handleSidebarNav('dashboard')}>
-          <AntDesign name="dashboard" size={22} color="#1565c0" style={styles.sidebarIcon} />
-          <Text style={styles.sidebarButtonText}>Dashboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.sidebarButton} onPress={() => handleSidebarNav('about')}>
-          <Entypo name="info" size={22} color="#1565c0" style={styles.sidebarIcon} />
-          <Text style={styles.sidebarButtonText}>About</Text>
-        </TouchableOpacity>
       </Animated.View>
 
-      {/* Profile Sidebar Overlay */}
-      {profileSidebarVisible && (
-        <TouchableOpacity style={styles.profileSidebarOverlay} activeOpacity={1} onPress={closeProfileSidebar} />
-      )}
-      {/* Profile Sidebar (right) */}
-      <Animated.View style={[styles.profileSidebar, { right: profileSidebarAnim }]}>
-        <View style={styles.profileSidebarHeader}>
-          <Text style={styles.profileSidebarTitle}>Profile</Text>
-          <TouchableOpacity onPress={closeProfileSidebar}>
-            <Entypo name="cross" size={28} color="#1565c0" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.profileInfo}>
-          <AntDesign name="user" size={48} color="#1565c0" style={{ marginBottom: 10 }} />
-          <Text style={styles.profileName}>{user?.fullName || 'User'}</Text>
-          <Text style={styles.profileEmail}>{user?.primaryEmailAddress?.emailAddress || ''}</Text>
-        </View>
-        <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-          <Text style={styles.signOutButtonText}>Sign Out</Text>
-        </TouchableOpacity>
-      </Animated.View>
-
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* Welcome Section */}
-        <View style={styles.welcomeSection}>
-          <Text style={styles.title}>
-            Welcome{user?.firstName ? `, ${user.firstName}` : ''}!
-          </Text>
-          {user?.fullName && (
-            <Text style={styles.userNameText}>
-              Signed in as: {user.fullName}
-            </Text>
-          )}
-          <Text style={styles.subtitle}>
-            Empowering early detection and support for autism spectrum disorder.
-          </Text>
-          <Image
-            source={childImg}
-            style={styles.childImage}
-            resizeMode="contain"
-          />
-          <TouchableOpacity
-            style={styles.detectButton}
-            onPress={() => Alert.alert('Detect', 'Detection feature coming soon!')}
+      {/* Main Content */}
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <Animated.View
+          style={[
+            styles.container,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          {/* Welcome Section */}
+          <LinearGradient
+            colors={['#F8FAFC', '#EFF6FF']}
+            style={styles.welcomeSection}
           >
-            <Text style={styles.detectButtonText}>Start Detection</Text>
-          </TouchableOpacity>
-        </View>
+            <Text style={styles.greeting}>{getGreeting()}</Text>
+            <Text style={styles.welcomeTitle}>
+              {user?.firstName ? `${user.firstName}!` : 'Welcome!'}
+            </Text>
+            <Text style={styles.welcomeSubtitle}>
+              Ready to continue your autism detection journey?
+            </Text>
 
-       
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>© 2025 Autism Detection App</Text>
-        </View>
+            <Image source={childImg} style={styles.childImage} resizeMode="contain" />
+
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => Alert.alert('Detect', 'Detection feature coming soon!')}
+            >
+              <LinearGradient colors={['#1E40AF', '#3B82F6']} style={styles.buttonGradient}>
+                <Text style={styles.primaryButtonText}>Start Asssessment</Text>
+                <Feather name="arrow-right" size={20} color="#FFFFFF" />
+              </LinearGradient>
+            </TouchableOpacity>
+          </LinearGradient>
+
+          {/* Quick Actions */}
+          <View style={styles.quickActionsSection}>
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <View style={styles.quickActionsGrid}>
+              {[
+                { icon: 'search', title: 'New Assessment', subtitle: 'Start detection process', color: '#10B981' },
+                { icon: 'bar-chart-2', title: 'View Results', subtitle: 'Check past assessments', color: '#3B82F6' },
+                { icon: 'book-open', title: 'Resources', subtitle: 'Educational content', color: '#8B5CF6' },
+                { icon: 'users', title: 'Support', subtitle: 'Get help & guidance', color: '#F59E0B' },
+              ].map((action, index) => (
+                <TouchableOpacity key={index} style={styles.quickActionCard}>
+                  <View style={[styles.quickActionIcon, { backgroundColor: `${action.color}15` }]}>
+                    <Feather name={action.icon} size={24} color={action.color} />
+                  </View>
+                  <Text style={styles.quickActionTitle}>{action.title}</Text>
+                  <Text style={styles.quickActionSubtitle}>{action.subtitle}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Stats Section */}
+          <View style={styles.statsSection}>
+            <Text style={styles.sectionTitle}>Your Progress</Text>
+            <View style={styles.statsGrid}>
+              {[
+                { number: '0', label: 'Assessments\nCompleted', icon: 'check-circle' },
+                { number: '0', label: 'Days\nActive', icon: 'calendar' },
+                { number: '100%', label: 'Accuracy\nRate', icon: 'target' },
+              ].map((stat, index) => (
+                <View key={index} style={styles.statCard}>
+                  <View style={styles.statIconContainer}>
+                    <Feather name={stat.icon} size={20} color="#1E40AF" />
+                  </View>
+                  <Text style={styles.statNumber}>{stat.number}</Text>
+                  <Text style={styles.statLabel}>{stat.label}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {/* Recent Activity */}
+          <View style={styles.recentSection}>
+            <Text style={styles.sectionTitle}>Recent Activity</Text>
+            <View style={styles.activityCard}>
+              <View style={styles.activityIcon}>
+                <Feather name="clock" size={20} color="#64748B" />
+              </View>
+              <View style={styles.activityContent}>
+                <Text style={styles.activityTitle}>Welcome to AutiScan!</Text>
+                <Text style={styles.activitySubtitle}>
+                  You've successfully signed in. Start your first assessment to begin your journey.
+                </Text>
+                <Text style={styles.activityTime}>Just now</Text>
+              </View>
+            </View>
+          </View>
+        </Animated.View>
       </ScrollView>
     </View>
   );
@@ -188,228 +751,450 @@ export default function Home() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#f6f8fc',
+    backgroundColor: '#F8FAFC',
   },
-  sidebarOverlay: {
+
+  // Header Styles
+  header: {
+    paddingTop: Platform.OS === 'ios' ? 50 : StatusBar.currentHeight + 10,
+    paddingBottom: 16,
+    elevation: 8,
+    shadowColor: '#1E40AF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+  },
+  menuButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerLogo: {
+    width: 40,
+    height: 40,
+    marginRight: 8,
+  },
+  logoText: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  profileButton: {
+    width: 44,
+    height: 44,
+  },
+  profileAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  profileInitial: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+
+  // Overlay
+  overlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: 'rgba(0,0,0,0.25)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     zIndex: 50,
   },
+
+  // Main Sidebar
   sidebar: {
     position: 'absolute',
     top: 0,
     left: 0,
-    width: '70%',
+    width: '75%',
     height: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     zIndex: 100,
-    paddingTop: 60,
-    paddingHorizontal: 18,
-    elevation: 10,
-    shadowColor: '#1565c0',
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    shadowOffset: { width: 2, height: 0 },
+    elevation: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 4, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
   },
   sidebarHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === 'ios' ? 60 : StatusBar.currentHeight + 20,
+    paddingBottom: 24,
+  },
+  sidebarTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   sidebarTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#1565c0',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginLeft: 12,
+  },
+  closeButton: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  sidebarContent: {
+    paddingTop: 20,
+    paddingHorizontal: 12,
   },
   sidebarButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    marginBottom: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    marginVertical: 4,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  sidebarIcon: {
-    marginRight: 14,
+  sidebarIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#EFF6FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
   },
   sidebarButtonText: {
-    fontSize: 17,
-    color: '#1565c0',
+    flex: 1,
+    fontSize: 16,
     fontWeight: '600',
+    color: '#1E293B',
   },
-  // Profile Sidebar Styles
-  profileSidebarOverlay: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0,0,0,0.25)',
-    zIndex: 50,
-  },
+
+  // Profile Sidebar
   profileSidebar: {
     position: 'absolute',
     top: 0,
     right: 0,
-    width: '70%',
+    width: '75%',
     height: '100%',
-    backgroundColor: '#fff',
-    zIndex: 101,
-    paddingTop: 60,
-    paddingHorizontal: 18,
-    elevation: 10,
-    shadowColor: '#1565c0',
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    shadowOffset: { width: -2, height: 0 },
-    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    zIndex: 100,
+    elevation: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: -4, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
   },
   profileSidebarHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '100%',
-    marginBottom: 24,
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === 'ios' ? 60 : StatusBar.currentHeight + 20,
+    paddingBottom: 24,
   },
   profileSidebarTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#1565c0',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  profileContent: {
+    flex: 1,
+    paddingHorizontal: 24,
   },
   profileInfo: {
     alignItems: 'center',
-    marginBottom: 30,
+    paddingVertical: 32,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  profileAvatarLarge: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#1E40AF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  profileInitialLarge: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   profileName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1565c0',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1E293B',
     marginBottom: 4,
   },
   profileEmail: {
-    fontSize: 15,
-    color: '#333',
-    marginBottom: 10,
+    fontSize: 14,
+    color: '#64748B',
   },
-  menuBarHeader: {
-    width: '100%',
-    backgroundColor: '#fff',
+  profileActions: {
+    paddingVertical: 24,
+  },
+  profileActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  profileActionText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1E293B',
+    marginLeft: 16,
+  },
+  signOutButton: {
+    marginTop: 'auto',
+    marginBottom: 32,
+    borderRadius: 16,
+  },
+  signOutGradient: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
-    zIndex: 100,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e3eaf2',
-    elevation: 6,
-    shadowColor: '#1565c0',
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 16 : 16, // Add friendly top padding
-    paddingBottom: 8, // Add bottom padding for breathing room
-    height: undefined, // Remove fixed height for flexibility
-  },
-  menuBar: {
-    width: '92%',
-    minHeight: 48,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  menuBarLogo: {
-    width: 100,
-    height: 58,
-  },
-  menuBarIconsRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconButton: {
-    padding: 8,
-    borderRadius: 20,
-    marginLeft: 8,
-  },
-  container: {
-    alignItems: 'center',
-    paddingTop: 110,
-    paddingBottom: 30,
-    minHeight: '100%',
-  },
-  welcomeSection: {
-    alignItems: 'center',
-    marginBottom: 24,
-    width: '90%',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1565c0',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  
-  signOutButton: {
-    backgroundColor: '#1565c0',
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 8,
-    marginTop: 10,
-    alignSelf: 'center',
-    elevation: 2,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
   },
   signOutButtonText: {
-    color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
-    letterSpacing: 1,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginLeft: 8,
   },
-  footer: {
-    marginTop: 20,
+
+  // Main Content
+  scrollView: {
+    flex: 1,
+  },
+  container: {
+    paddingBottom: 40,
+  },
+
+  // Welcome Section
+  welcomeSection: {
+    margin: 20,
+    borderRadius: 24,
+    padding: 32,
     alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
-  footerText: {
-    color: '#1565c0',
-    fontSize: 15,
+  greeting: {
+    fontSize: 16,
+    color: '#64748B',
     fontWeight: '500',
   },
-  userNameText: {
+  welcomeTitle: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: '#1E293B',
+    marginBottom: 8,
+  },
+  welcomeSubtitle: {
     fontSize: 16,
-    color: '#1565c0',
-    fontWeight: '600',
-    marginBottom: 6,
+    color: '#64748B',
     textAlign: 'center',
+    marginBottom: 24,
   },
   childImage: {
-    width: 480,
-    height: 300,
-    marginVertical: 18,
-    alignSelf: 'center',
+    width: SCREEN_WIDTH * 0.8,
+    height: 200,
+    marginBottom: 32,
   },
-  detectButton: {
-    backgroundColor: '#1565c0',
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-    borderRadius: 8,
+  primaryButton: {
+    borderRadius: 20,
+    elevation: 6,
+    shadowColor: '#1E40AF',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+  },
+  buttonGradient: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 70,
-    elevation: 2,
-    alignSelf: 'center',
+    paddingVertical: 18,
+    paddingHorizontal: 36,
+    borderRadius: 20,
   },
-  detectButtonText: {
-    color: '#fff',
+  primaryButtonText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    letterSpacing: 1,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginRight: 8,
+  },
+
+  // Sections
+  quickActionsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#1E293B',
+    marginBottom: 20,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  quickActionCard: {
+    width: '48%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 16,
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+  },
+  quickActionIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  quickActionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  quickActionSubtitle: {
+    fontSize: 12,
+    color: '#64748B',
+    textAlign: 'center',
+  },
+
+  // Stats Section
+  statsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+  },
+  statCard: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#EFF6FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  statNumber: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1E40AF',
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748B',
+    textAlign: 'center',
+  },
+
+  // Recent Activity
+  recentSection: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
+  },
+  activityCard: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  activityIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: 4,
+  },
+  activitySubtitle: {
+    fontSize: 14,
+    color: '#64748B',
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  activityTime: {
+    fontSize: 12,
+    color: '#94A3B8',
+    fontWeight: '500',
   },
 });

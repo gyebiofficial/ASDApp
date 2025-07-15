@@ -27,7 +27,19 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen
+          name="WelcomeScreen"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
           name="screens/home"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="screens/WelcomeScreen"
           options={{
             headerShown: false,
           }}
