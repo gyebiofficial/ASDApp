@@ -676,7 +676,7 @@ export default function Home() {
 
             <TouchableOpacity
               style={styles.primaryButton}
-              onPress={() => Alert.alert('Detect', 'Detection feature coming soon!')}
+              onPress={() => router.replace('/screens/detect')}
             >
               <LinearGradient colors={['#1E40AF', '#3B82F6']} style={styles.buttonGradient}>
                 <Text style={styles.primaryButtonText}>Start Asssessment</Text>
