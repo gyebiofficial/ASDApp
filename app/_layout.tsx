@@ -15,7 +15,7 @@ export default function RootLayout() {
         />
         
         <Stack.Screen
-          name="signUpScreen"
+          name="(auth)/sign-in"
           options={{
             headerShown: false,
           }}
@@ -40,6 +40,12 @@ export default function RootLayout() {
         />
         <Stack.Screen
           name="screens/WelcomeScreen"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="screens/detect"
           options={{
             headerShown: false,
           }}

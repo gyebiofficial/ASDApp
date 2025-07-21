@@ -1,264 +1,504 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, ImageBackground, TouchableOpacity, Image, Animated, Dimensions } from 'react-native';
+// import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  StatusBar,
+  Image,
+  Linking
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import Entypo from '@expo/vector-icons/Entypo';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
+const { width } = Dimensions.get('window');
 
-export default function About() {
-  const router = useRouter();
+const SLIDER_INTERVAL = 3000; // 3 seconds
 
-  // Sidebar state and animation
-  const [sidebarVisible, setSidebarVisible] = React.useState(false);
-  const sidebarAnim = React.useRef(new Animated.Value(SCREEN_WIDTH)).current;
+const AboutScreen = ({ navigation }) => {
+ 
 
-  const openSidebar = () => {
-    setSidebarVisible(true);
-    Animated.timing(sidebarAnim, {
-      toValue: 0,
-      duration: 250,
-      useNativeDriver: false,
-    }).start();
-  };
+  const values = [
+    {
+      icon: 'shield',
+      title: 'Privacy & Security',
+      description: 'Your family\'s data is protected with enterprise-grade encryption',
+      gradient: ['#EF4444', '#DC2626']
+    },
+    {
+      icon: 'heart',
+      title: 'Compassionate Care',
+      description: 'Every feature is designed with empathy and understanding',
+      gradient: ['#EC4899', '#DB2777']
+    },
+    {
+      icon: 'award',
+      title: 'Clinical Excellence',
+      description: 'Evidence-based tools validated by leading autism specialists',
+      gradient: ['#10B981', '#059669']
+    },
+    {
+      icon: 'users',
+      title: 'Community Support',
+      description: 'Connecting families with resources and support networks',
+      gradient: ['#3B82F6', '#1D4ED8']
+    }
+  ];
 
-  const closeSidebar = () => {
-    Animated.timing(sidebarAnim, {
-      toValue: SCREEN_WIDTH,
-      duration: 200,
-      useNativeDriver: false,
-    }).start(() => setSidebarVisible(false));
-  };
+  // Slider state
+  const [currentValueIndex, setCurrentValueIndex] = useState(0);
 
-  const handleSidebarNav = (route) => {
-    closeSidebar();
-    setTimeout(() => {
-      if (route === 'home') router.replace('/screens/WelcomeScreen');
-      if (route === 'detect') router.replace('/sign-in'); // Change to your detect screen if available
-      if (route === 'dashboard') router.replace('/sign-in'); // Change to your dashboard screen if available
-      if (route === 'about') router.replace('/screens/about');
-      if (route === 'sign-in') router.replace('/sign-in');
-    }, 250);
-  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentValueIndex((prev) => (prev + 1) % values.length);
+    }, SLIDER_INTERVAL);
+    return () => clearInterval(interval);
+  }, []);
+
+  const router = typeof navigation === 'undefined' ? useRouter() : null;
 
   return (
-    <ImageBackground
-      source={require('../../assets/images/autism.jpg')}
-      style={styles.background}
-      resizeMode="cover"
-    >
-      <View style={styles.overlay}>
-        {/* Sidebar Overlay */}
-        {sidebarVisible && (
-          <TouchableOpacity style={styles.sidebarOverlay} activeOpacity={1} onPress={closeSidebar} />
-        )}
-        {/* Sidebar */}
-        <Animated.View style={[styles.sidebar, { right: sidebarAnim }]}>
-          <View style={styles.sidebarHeader}>
-            <Text style={styles.sidebarTitle}>Menu</Text>
-            <TouchableOpacity onPress={closeSidebar}>
-              <Entypo name="cross" size={28} color="#1565c0" />
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity style={styles.sidebarButton} onPress={() => handleSidebarNav('home')}>
-            <Entypo name="home" size={22} color="#1565c0" style={styles.sidebarIcon} />
-            <Text style={styles.sidebarButtonText}>Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.sidebarButton} onPress={() => handleSidebarNav('detect')}>
-            <Entypo name="magnifying-glass" size={22} color="#1565c0" style={styles.sidebarIcon} />
-            <Text style={styles.sidebarButtonText}>Detect</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.sidebarButton} onPress={() => handleSidebarNav('dashboard')}>
-            <Entypo name="bar-graph" size={22} color="#1565c0" style={styles.sidebarIcon} />
-            <Text style={styles.sidebarButtonText}>Dashboard</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.sidebarButton} onPress={() => handleSidebarNav('about')}>
-            <Entypo name="info" size={22} color="#1565c0" style={styles.sidebarIcon} />
-            <Text style={styles.sidebarButtonText}>About</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.sidebarButton} onPress={() => handleSidebarNav('sign-in')}>
-            <Entypo name="login" size={22} color="#1565c0" style={styles.sidebarIcon} />
-            <Text style={styles.sidebarButtonText}>Sign In</Text>
-          </TouchableOpacity>
-        </Animated.View>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      
+      {/* Header Section */}
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => router.replace('/screens/home')}
+        >
+          <Feather name="arrow-left" size={24} color="#1F2937" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>About AutiScan</Text>
+      </View>
 
-        {/* Menu Bar Header */}
-        <View style={styles.menuBarHeader}>
-          <Image
-            source={require('../../assets/images/Auti1.png')}
-            style={styles.menuBarLogo}
-            resizeMode="contain"
-          />
-          <TouchableOpacity style={styles.iconButton} onPress={openSidebar}>
-            <Entypo name="menu" size={28} color="#1565c0" />
+      {/* Hero Section */}
+      <View style={styles.heroSection}>
+        <LinearGradient
+          colors={['#667EEA', '#764BA2']}
+          style={styles.heroGradient}
+        >
+           <Image
+  source={require('C:/Users/gyebi/Desktop/Autism Detection App/ASDApp/assets/images/AutiScan.png')}
+  style={{
+    width: 80,
+    height: 80,
+    borderRadius: 40, // Half of width/height for perfect circle
+    overflow: 'hidden',
+    backgroundColor: '#fff', // Optional: for better contrast
+    alignSelf: 'center',
+  }}
+  resizeMode="cover"
+/>
+          <Text style={styles.heroTitle}>Empowering Early Detection</Text>
+          <Text style={styles.heroSubtitle}>
+            Supporting families with AI-powered autism screening tools
+          </Text>
+        </LinearGradient>
+      </View>
+
+      {/* Mission Section */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Our Mission</Text>
+          <View style={styles.titleUnderline} />
+        </View>
+        <Text style={styles.missionText}>
+          AutiScan is dedicated to providing accessible, accurate, and compassionate 
+          autism screening tools. We believe early detection can transform lives, 
+          and every child deserves the support they need to thrive.
+        </Text>
+       
+      </View>
+
+      {/* Values Section as Slider */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Our Values</Text>
+          <View style={styles.titleUnderline} />
+        </View>
+        <View style={styles.sliderContainer}>
+          <View style={styles.bigValueCard}>
+            <LinearGradient
+              colors={values[currentValueIndex].gradient}
+              style={styles.bigValueIconContainer}
+            >
+              <Feather
+                name={values[currentValueIndex].icon}
+                size={24}
+                color="#FFFFFF"
+              />
+            </LinearGradient>
+            <View style={styles.bigValueContent}>
+              <Text style={styles.bigValueTitle}>{values[currentValueIndex].title}</Text>
+              <Text style={styles.bigValueDescription}>{values[currentValueIndex].description}</Text>
+            </View>
+          </View>
+          <View style={styles.sliderDots}>
+            {values.map((_, idx) => (
+              <View
+                key={idx}
+                style={[
+                  styles.dot,
+                  currentValueIndex === idx && styles.activeDot
+                ]}
+              />
+            ))}
+          </View>
+        </View>
+      </View>
+
+      {/* Contact Section */}
+      <View style={[styles.section, styles.lastSection]}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Get in Touch</Text>
+          <View style={styles.titleUnderline} />
+        </View>
+        <Text style={styles.contactText}>
+          Have questions or feedback? We'd love to hear from you.
+        </Text>
+        <View style={styles.contactButtons}>
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={() => {
+              // Opens email app with your address
+              Linking.openURL('mailto:gyebiofficial@gmail.com');
+            }}
+          >
+            <Feather name="mail" size={18} color="#FFFFFF" />
+            <Text style={styles.primaryButtonText}>gyebiofficial@gmail.com</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={() => {
+              // Opens phone dialer with your number
+              Linking.openURL('tel:0506526768');
+            }}
+          >
+            <Feather name="message-circle" size={18} color="#1E40AF" />
+            <Text style={styles.secondaryButtonText}>0506526768</Text>
           </TouchableOpacity>
         </View>
-
-        <ScrollView contentContainerStyle={styles.container}>
-          <Text style={styles.title}>About Autism Spectrum Disorder (ASD)</Text>
-          <Text style={styles.sectionText}>
-            Autism Spectrum Disorder (ASD) is a developmental condition that affects how a person communicates, interacts, and experiences the world. People with ASD may have unique strengths and face challenges in social skills, repetitive behaviors, speech, and nonverbal communication.
-          </Text>
-          <Text style={styles.sectionText}>
-            Early detection and support can make a significant difference in the lives of individuals with autism and their families. Understanding and acceptance are key to helping people with ASD thrive.
-          </Text>
-
-          <Text style={styles.subtitle}>What is AutiScan?</Text>
-          <Text style={styles.sectionText}>
-            <Text style={{fontWeight: 'bold'}}>AutiScan</Text> is an AI-powered app designed to help with the early screening of autism spectrum disorder (ASD) risk factors. Our goal is to empower families, caregivers, and individuals by providing:
-          </Text>
-          <View style={styles.bulletList}>
-            <Text style={styles.bulletItem}>• Quick and easy ASD screening tools</Text>
-            <Text style={styles.bulletItem}>• Personalized dashboard for tracking progress</Text>
-            <Text style={styles.bulletItem}>• Access to educational resources and articles</Text>
-            <Text style={styles.bulletItem}>• Secure profile management</Text>
-            <Text style={styles.bulletItem}>• History of previous screenings</Text>
-          </View>
-          <Text style={styles.sectionText}>
-            <Text style={{fontWeight: 'bold', color: '#e65100'}}>Note:</Text> AutiScan is a screening tool, not a diagnostic tool. For a formal diagnosis, please consult a qualified healthcare professional.
-          </Text>
-          <Text style={styles.footerText}>© 2025 AutiScan | Empowering Early Detection</Text>
-        </ScrollView>
       </View>
-    </ImageBackground>
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  background: {
+  container: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    backgroundColor: '#FFFFFF',
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(74, 144, 226, 0.75)',
-    paddingHorizontal: 0,
-    justifyContent: 'center',
-  },
-  menuBarHeader: {
-    width: '100%',
-    height: 80,
-    backgroundColor: '#fff',
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 18,
-    paddingTop: 20, // Increased from 10 to 30 for more space from the top
-    paddingBottom: 1,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e3eaf2',
-    elevation: 6,
-    shadowColor: '#1565c0',
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    marginBottom: 10,
-  },
-  iconButton: {
-    padding: 6,
-    borderRadius: 20,
-  },
-  menuBarLogo: {
-    width: 120,
-    height: 50,
-    alignSelf: 'center',
-  },
-  sidebarOverlay: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0,0,0,0.25)',
-    zIndex: 50,
-  },
-  sidebar: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: '70%',
-    height: '100%',
-    backgroundColor: '#fff',
-    zIndex: 100,
+    paddingHorizontal: 20,
     paddingTop: 60,
-    paddingHorizontal: 18,
-    elevation: 10,
-    shadowColor: '#1565c0',
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    shadowOffset: { width: -2, height: 0 },
+    paddingBottom: 20,
+    backgroundColor: '#FFFFFF',
   },
-  sidebarHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  backButton: {
+    padding: 8,
+    marginRight: 12,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1F2937',
+  },
+  heroSection: {
+    marginHorizontal: 20,
+    marginBottom: 32,
+    borderRadius: 16,
+    overflow: 'hidden',
+    
+  },
+  heroGradient: {
+    padding: 32,
     alignItems: 'center',
-    marginBottom: 24,
   },
-  sidebarTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#1565c0',
-  },
-  sidebarButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 8,
-    borderRadius: 8,
+  heroTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginTop: 16,
     marginBottom: 8,
   },
-  sidebarIcon: {
-    marginRight: 14,
-  },
-  sidebarButtonText: {
-    fontSize: 17,
-    color: '#1565c0',
-    fontWeight: '600',
-  },
-  container: {
-    padding: 24,
-    paddingTop: 10,
-    paddingBottom: 40,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 18,
-    textAlign: 'center',
-    letterSpacing: 1,
-  },
-  subtitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginTop: 24,
-    marginBottom: 10,
-    textAlign: 'center',
-    letterSpacing: 0.5,
-  },
-  sectionText: {
+  heroSubtitle: {
     fontSize: 16,
-    color: '#f0f0f0',
-    marginBottom: 14,
-    textAlign: 'left',
-    lineHeight: 22,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    opacity: 0.9,
+    lineHeight: 24,
   },
-  bulletList: {
-    marginLeft: 12,
+  section: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
+  },
+  lastSection: {
+    marginBottom: 40,
+  },
+  sectionHeader: {
+    alignItems: 'center',
     marginBottom: 16,
   },
-  bulletItem: {
-    fontSize: 16,
-    color: '#fff',
-    marginBottom: 6,
-    lineHeight: 22,
-  },
-  footerText: {
-    marginTop: 30,
-    color: '#fff',
-    fontSize: 15,
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1F2937',
     textAlign: 'center',
-    opacity: 0.8,
-  }
+  },
+  titleUnderline: {
+    width: 40,
+    height: 3,
+    backgroundColor: '#3B82F6',
+    borderRadius: 2,
+    marginTop: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 24,
+  },
+  missionText: {
+    fontSize: 16,
+    color: '#4B5563',
+    lineHeight: 26,
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    padding: 24,
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1F2937',
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  sliderContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 12,
+  },
+  bigValueCard: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28, // bigger radius
+    padding: 36,      // more padding
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+    alignItems: 'center',
+    minHeight: 150,   // taller card
+    width: '100%',
+    marginBottom: 24, // more space below
+  },
+  bigValueIconContainer: {
+    width: 90,        // bigger icon container
+    height: 90,
+    borderRadius: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 32,  // more space to content
+  },
+  bigValueContent: {
+    flex: 1,
+  },
+  bigValueTitle: {
+    fontSize: 26,     // bigger title
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 10,
+  },
+  bigValueDescription: {
+    fontSize: 18,     // bigger description
+    color: '#374151',
+    lineHeight: 28,
+  },
+  sliderDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 12,
+    gap: 18,          // more gap
+  },
+  dot: {
+    width: 20,        // bigger dots
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#E5E7EB',
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: '#3B82F6',
+    borderWidth: 3,
+    borderColor: '#1E40AF',
+  },
+  valuesGrid: {
+    gap: 16,
+  },
+  valueCard: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  valueIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  valueContent: {
+    flex: 1,
+  },
+  valueTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 4,
+  },
+  valueDescription: {
+    fontSize: 14,
+    color: '#6B7280',
+    lineHeight: 20,
+  },
+  teamGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  teamCard: {
+    width: (width - 56) / 2,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  teamIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  teamName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  teamRole: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  recognitionContainer: {
+    gap: 16,
+  },
+  recognitionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    padding: 16,
+  },
+  recognitionIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  recognitionText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#1F2937',
+    flex: 1,
+  },
+  contactText: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 24,
+  },
+  contactButtons: {
+    gap: 12,
+  },
+  primaryButton: {
+    backgroundColor: '#1E40AF',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  primaryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  secondaryButton: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+  },
+  secondaryButtonText: {
+    color: '#1E40AF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });
+
+export default AboutScreen;
