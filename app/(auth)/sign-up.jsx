@@ -226,8 +226,6 @@ export default function SignUpScreen() {
   const [emailAddress, setEmailAddress] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [confirmPassword, setConfirmPassword] = React.useState('')
-  const [firstName, setFirstName] = React.useState('')
-  const [lastName, setLastName] = React.useState('')
   const [pendingVerification, setPendingVerification] = React.useState(false)
   const [code, setCode] = React.useState('')
   const [isLoading, setIsLoading] = React.useState(false)
@@ -239,8 +237,6 @@ export default function SignUpScreen() {
   const [emailFocused, setEmailFocused] = React.useState(false)
   const [passwordFocused, setPasswordFocused] = React.useState(false)
   const [confirmPasswordFocused, setConfirmPasswordFocused] = React.useState(false)
-  const [firstNameFocused, setFirstNameFocused] = React.useState(false)
-  const [lastNameFocused, setLastNameFocused] = React.useState(false)
   const [codeFocused, setCodeFocused] = React.useState(false)
 
   // Validation functions
@@ -277,8 +273,6 @@ export default function SignUpScreen() {
 
   const isFormValid = () => {
     return (
-      firstName.trim().length > 0 &&
-      lastName.trim().length > 0 &&
       validateEmail(emailAddress) &&
       validatePassword(password) &&
       password === confirmPassword
@@ -302,8 +296,6 @@ export default function SignUpScreen() {
       await signUp.create({
         emailAddress,
         password,
-        firstName,
-        lastName,
       })
 
       await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
@@ -503,49 +495,6 @@ export default function SignUpScreen() {
                 </View>
               ) : null}
 
-              {/* Name Inputs */}
-              <View style={styles.nameRow}>
-                <View style={[styles.inputContainer, styles.nameInput]}>
-                  <Text style={styles.inputLabel}>First Name</Text>
-                  <View style={[
-                    styles.inputWrapper, 
-                    firstNameFocused && styles.inputWrapperFocused
-                  ]}>
-                    <MaterialIcons name="person" size={20} color={firstNameFocused ? "#1E40AF" : "#94A3B8"} style={styles.inputIcon} />
-                    <TextInput
-                      value={firstName}
-                      placeholder="First name"
-                      placeholderTextColor="#94A3B8"
-                      onChangeText={setFirstName}
-                      onFocus={() => setFirstNameFocused(true)}
-                      onBlur={() => setFirstNameFocused(false)}
-                      style={styles.input}
-                      autoComplete="given-name"
-                    />
-                  </View>
-                </View>
-
-                <View style={[styles.inputContainer, styles.nameInput]}>
-                  <Text style={styles.inputLabel}>Last Name</Text>
-                  <View style={[
-                    styles.inputWrapper, 
-                    lastNameFocused && styles.inputWrapperFocused
-                  ]}>
-                    <MaterialIcons name="person" size={20} color={lastNameFocused ? "#1E40AF" : "#94A3B8"} style={styles.inputIcon} />
-                    <TextInput
-                      value={lastName}
-                      placeholder="Last name"
-                      placeholderTextColor="#94A3B8"
-                      onChangeText={setLastName}
-                      onFocus={() => setLastNameFocused(true)}
-                      onBlur={() => setLastNameFocused(false)}
-                      style={styles.input}
-                      autoComplete="family-name"
-                    />
-                  </View>
-                </View>
-              </View>
-
               {/* Email Input */}
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Email Address</Text>
@@ -614,8 +563,8 @@ export default function SignUpScreen() {
                           style={[
                             styles.strengthBar,
                             {
-                              backgroundColor: bar <= getPasswordStrength(password) 
-                                ? getPasswordStrengthText(getPasswordStrength(password)).color 
+                              backgroundColor: bar <= getPasswordStrength(password)
+                                ? getPasswordStrengthText(getPasswordStrength(password)).color
                                 : '#E5E7EB'
                             }
                           ]}
@@ -692,26 +641,6 @@ export default function SignUpScreen() {
                 </LinearGradient>
               </TouchableOpacity>
 
-              {/* Divider */}
-              {/* <View style={styles.dividerContainer}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or</Text>
-                <View style={styles.dividerLine} />
-              </View> */}
-
-              {/* Social Sign Up Options */}
-              {/* <View style={styles.socialContainer}>
-                <TouchableOpacity style={styles.socialButton}>
-                  <MaterialIcons name="google" size={24} color="#DB4437" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.socialButton}>
-                  <MaterialIcons name="apple" size={24} color="#000000" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.socialButton}>
-                  <MaterialIcons name="facebook" size={24} color="#4267B2" />
-                </TouchableOpacity>
-              </View> */}
-
               {/* Sign In Link */}
               <View style={styles.signInContainer}>
                 <Text style={styles.signInPrompt}>Already have an account? </Text>
@@ -757,7 +686,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 40,
   },
-
   // Header Section
   headerSection: {
     alignItems: 'center',
@@ -795,7 +723,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#FFFFFF',
   },
-
   // Form Container
   formContainer: {
     backgroundColor: '#FFFFFF',
@@ -808,7 +735,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 16,
   },
-
   // Error Handling
   errorContainer: {
     flexDirection: 'row',
@@ -827,16 +753,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     flex: 1,
   },
-
   // Input Styles
-  nameRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  nameInput: {
-    width: '48%',
-  },
   inputContainer: {
     marginBottom: 24,
   },
@@ -880,7 +797,6 @@ const styles = StyleSheet.create({
   checkIcon: {
     marginLeft: 8,
   },
-
   // Password Strength
   passwordStrength: {
     flexDirection: 'row',
@@ -901,7 +817,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
-
   // Buttons
   signUpButton: {
     borderRadius: 16,
@@ -950,9 +865,6 @@ const styles = StyleSheet.create({
   buttonIcon: {
     marginLeft: 8,
   },
-
-
-
   // Sign In Link
   signInContainer: {
     flexDirection: 'row',
@@ -969,7 +881,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-
   // Resend Code
   resendContainer: {
     flexDirection: 'row',
@@ -986,7 +897,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
-
   // Footer
   footer: {
     paddingHorizontal: 16,

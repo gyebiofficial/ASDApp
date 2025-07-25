@@ -267,7 +267,7 @@ export default function Home() {
               onPress={() => router.replace('/screens/detect')}
             >
               <LinearGradient colors={['#1E40AF', '#3B82F6']} style={styles.buttonGradient}>
-                <Text style={styles.primaryButtonText}>Start Asssessment</Text>
+                <Text style={styles.primaryButtonText}>Start Assessment</Text>
                 <Feather name="arrow-right" size={20} color="#FFFFFF" />
               </LinearGradient>
             </TouchableOpacity>
