@@ -73,7 +73,7 @@ const AboutScreen = ({ navigation }) => {
         >
           <Feather name="arrow-left" size={24} color="#1F2937" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>About AutiScan</Text>
+        <Text style={styles.headerTitle}>About AutiCare</Text>
       </View>
 
       {/* Hero Section */}
@@ -108,7 +108,7 @@ const AboutScreen = ({ navigation }) => {
           <View style={styles.titleUnderline} />
         </View>
         <Text style={styles.missionText}>
-          AutiScan is dedicated to providing accessible, accurate, and compassionate 
+          AutiCare is dedicated to providing accessible, accurate, and compassionate 
           autism screening tools. We believe early detection can transform lives, 
           and every child deserves the support they need to thrive.
         </Text>

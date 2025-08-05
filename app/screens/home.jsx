@@ -217,16 +217,23 @@ export default function Home() {
 
           <View style={styles.profileActions}>
             <TouchableOpacity style={styles.profileActionButton}
-              onPress={() => router.replace('/user-profile')}>
-              <Feather name="user" size={20} color="#1E40AF" />
+              onPress={() => {
+                closeProfileSidebar();
+                setTimeout(() => {
+                  router.push('/screens/edit-profile');
+                }, 300);
+              }}>
+              <Feather name="edit" size={20} color="#1E40AF" />
               <Text style={styles.profileActionText}>Edit Profile</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.profileActionButton}>
-              <Feather name="settings" size={20} color="#1E40AF" />
-              <Text style={styles.profileActionText}>Settings</Text>
+              <Feather name="user-plus" size={20} color="#1E40AF" />
+              <Text style={styles.profileActionText}>Manage Accounts</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.profileActionButton}>
+            
+            <TouchableOpacity style={styles.profileActionButton}
+              onPress={() => router.replace('/screens/resources')}>
               <Feather name="help-circle" size={20} color="#1E40AF" />
               <Text style={styles.profileActionText}>Help & Support</Text>
             </TouchableOpacity>

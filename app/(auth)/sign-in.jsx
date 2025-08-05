@@ -163,9 +163,11 @@ export default function Page() {
                 </View>
 
                 {/* Forgot Password */}
-                <TouchableOpacity style={styles.forgotPassword}>
-                  <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-                </TouchableOpacity>
+                <Link href="/(auth)/forgot-password" asChild>
+                   <TouchableOpacity style={styles.forgotPassword}>
+                     <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                   </TouchableOpacity>
+                </Link>
 
                 {/* Sign In Button */}
                 <TouchableOpacity
