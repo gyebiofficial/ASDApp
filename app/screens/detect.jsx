@@ -13,6 +13,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
+import { useUser } from '@clerk/clerk-expo';
 import { addAssessment, getAllChildren } from '../services/firebaseService';
 
 // Scoring function
@@ -111,7 +112,7 @@ export const questions = [
     riskAnswer: "No",
   },
   {
-    text: "Does your child look you in the eye when you are talking to him or her, playing with him or her, or dressing him or her?",
+    text: "Does your child look you in the eye when you are talking to him or her, playing with him or her, or dressing him?",
     riskAnswer: "No",
   },
   {
@@ -545,10 +546,12 @@ const ChildSelectionModal = ({ visible, onClose, children, onSelectChild }) => {
 
 // Main DetectScreen Component
 const DetectScreen = () => {
+  const { user, isLoaded } = useUser(); // Add isLoaded
   const router = useRouter();
   const params = useLocalSearchParams();
   const { childId, childName, childAge } = params;
   
+  // ✅ All state declarations
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -557,12 +560,28 @@ const DetectScreen = () => {
   const [selectedChild, setSelectedChild] = useState(null);
   const [showChildSelection, setShowChildSelection] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [assessmentStarted, setAssessmentStarted] = useState(false);
+  const [assessmentStarted, setAssessmentStarted] = useState(false); // ✅ UNCOMMENT THIS
 
-  // Load children on component mount
-  useEffect(() => {
-    loadChildren();
-  }, []);
+  // ✅ Early returns for loading states
+  if (!isLoaded) {
+    return (
+      <LinearGradient colors={['#0F172A', '#1E293B', '#334155']} style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading user...</Text>
+        </View>
+      </LinearGradient>
+    );
+  }
+
+  if (!user) {
+    return (
+      <LinearGradient colors={['#0F172A', '#1E293B', '#334155']} style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Please sign in to continue</Text>
+        </View>
+      </LinearGradient>
+    );
+  }
 
   // Check if child was passed from navigation
   useEffect(() => {
@@ -576,39 +595,35 @@ const DetectScreen = () => {
     }
   }, [childId, childName, childAge]);
 
+  // ✅ Updated loadChildren with proper checks
   const loadChildren = async () => {
+    // Don't proceed if user isn't loaded or doesn't exist
+    if (!isLoaded || !user?.id) {
+      console.log('User not ready:', { isLoaded, userId: user?.id });
+      setLoading(false);
+      return;
+    }
+    
+    setLoading(true);
     try {
-      setLoading(true);
-      const childrenData = await getAllChildren();
-      setChildren(childrenData);
-      
-      // If no child was passed via navigation and we have children, show selection
-      if (!childId && !childName && childrenData.length > 0) {
-        setShowChildSelection(true);
-      } else if (!childId && !childName && childrenData.length === 0) {
-        // No children at all, show alert
-        Alert.alert(
-          'No Children Found',
-          'You need to add a child first before starting an assessment.',
-          [
-            {
-              text: 'Add Child',
-              onPress: () => router.push('/screens/children')
-            },
-            {
-              text: 'Go Back',
-              onPress: () => router.push('/screens/home')
-            }
-          ]
-        );
-      }
+      console.log('Loading children for user:', user.id);
+      const userChildren = await getAllChildren(user.id);
+      setChildren(userChildren);
+      console.log(`Loaded ${userChildren.length} children for user:`, user.id);
     } catch (error) {
-      console.error('Error loading children:', error);
-      Alert.alert('Error', 'Failed to load children data.');
+      console.error('Error in loadChildren:', error);
+      Alert.alert('Error', 'Failed to load children data');
     } finally {
       setLoading(false);
     }
   };
+
+  // Only load children when user is ready
+  useEffect(() => {
+    if (isLoaded && user?.id) {
+      loadChildren();
+    }
+  }, [isLoaded, user?.id]); // Watch both isLoaded and user.id
 
   const handleSelectChild = (child) => {
     setSelectedChild(child);
@@ -638,13 +653,22 @@ const DetectScreen = () => {
     }, 200);
   };
 
+  // ✅ Save assessment with user ID
   const saveAssessmentToFirebase = async (assessmentResult, answers) => {
     if (!selectedChild) {
       console.error('No child selected for assessment');
       return;
     }
 
+    if (!user?.id) {
+      console.error('No user logged in');
+      Alert.alert('Error', 'User not authenticated. Please sign in again.');
+      return;
+    }
+
     const assessmentData = {
+      userId: user.id, // 🔑 Critical: Links assessment to user
+      userEmail: user.primaryEmailAddress?.emailAddress,
       childId: selectedChild.id,
       childName: selectedChild.fullName,
       childAge: selectedChild.age,
@@ -653,6 +677,7 @@ const DetectScreen = () => {
       riskLevel: assessmentResult.riskLevel,
       answers: answers,
       totalQuestions: questions.length,
+      createdAt: new Date(),
     };
 
     try {

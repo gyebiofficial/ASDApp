@@ -10,13 +10,15 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 import { db } from '../screens/firebaseConfig';
-import { handleFirebaseError } from '../utils/networkUtils';
 
-// Children CRUD Operations
-export const addChild = async (childData) => {
+// ✅ Children Operations - Always include userId
+export const addChild = async (childData, userId) => {
   try {
+    if (!userId) throw new Error('User ID is required');
+    
     const docRef = await addDoc(collection(db, 'children'), {
       ...childData,
+      userId: userId, // 🔑 KEY: Links child to specific user
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -24,14 +26,24 @@ export const addChild = async (childData) => {
     return docRef.id;
   } catch (error) {
     console.error('Error adding child:', error);
-    handleFirebaseError(error);
     throw error;
   }
 };
 
-export const getAllChildren = async () => {
+// ✅ Get ONLY current user's children
+export const getAllChildren = async (userId) => {
+  console.log('🔍 getAllChildren called with userId:', userId);
+  
   try {
-    const q = query(collection(db, 'children'), orderBy('createdAt', 'desc'));
+    if (!userId) {
+      console.error('❌ getAllChildren: No userId provided');
+      throw new Error('User ID is required');
+    }
+    
+    const q = query(
+      collection(db, 'children'), 
+      where('userId', '==', userId)
+    );
     const querySnapshot = await getDocs(q);
     
     const children = [];
@@ -39,49 +51,23 @@ export const getAllChildren = async () => {
       children.push({
         id: doc.id,
         ...doc.data(),
-        // Convert Firestore timestamp to readable format
-        createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate(),
       });
     });
     
     return children;
   } catch (error) {
-    console.error('Error getting children:', error);
-    handleFirebaseError(error);
+    console.error('❌ getAllChildren error:', error);
     throw error;
   }
 };
 
-export const deleteChild = async (childId) => {
-  try {
-    await deleteDoc(doc(db, 'children', childId));
-    
-    // Also delete all assessments for this child
-    const assessmentsQuery = query(
-      collection(db, 'assessments'),
-      where('childId', '==', childId)
-    );
-    const assessmentsSnapshot = await getDocs(assessmentsQuery);
-    
-    const deletePromises = assessmentsSnapshot.docs.map(assessmentDoc => 
-      deleteDoc(doc(db, 'assessments', assessmentDoc.id))
-    );
-    
-    await Promise.all(deletePromises);
-    
-    console.log('Child and assessments deleted successfully');
-    return true;
-  } catch (error) {
-    console.error('Error deleting child:', error);
-    handleFirebaseError(error);
-    throw error;
-  }
-};
-
-// Assessment CRUD Operations
+// ✅ Assessment Operations - Always include userId
 export const addAssessment = async (assessmentData) => {
   try {
+    if (!assessmentData.userId) {
+      throw new Error('User ID is required for assessments');
+    }
+
     const docRef = await addDoc(collection(db, 'assessments'), {
       ...assessmentData,
       completedAt: serverTimestamp(),
@@ -90,17 +76,19 @@ export const addAssessment = async (assessmentData) => {
     return docRef.id;
   } catch (error) {
     console.error('Error adding assessment:', error);
-    handleFirebaseError(error);
     throw error;
   }
 };
 
-export const getChildAssessments = async (childId) => {
+// ✅ Get ONLY current user's assessments
+export const getAllAssessments = async (userId) => {
   try {
+    if (!userId) throw new Error('User ID is required');
+    
     const q = query(
-      collection(db, 'assessments'),
-      where('childId', '==', childId),
-      orderBy('completedAt', 'desc')
+      collection(db, 'assessments'), 
+      where('userId', '==', userId),
+      orderBy('completedAt', 'desc') // ✅ Restore after index creation
     );
     const querySnapshot = await getDocs(q);
     
@@ -115,30 +103,27 @@ export const getChildAssessments = async (childId) => {
     
     return assessments;
   } catch (error) {
-    console.error('Error getting child assessments:', error);
-    handleFirebaseError(error);
+    console.error('Error getting assessments:', error);
     throw error;
   }
 };
 
-export const getAllAssessments = async () => {
+// ✅ Get user-specific stats
+export const getUserStats = async (userId) => {
   try {
-    const q = query(collection(db, 'assessments'), orderBy('completedAt', 'desc'));
-    const querySnapshot = await getDocs(q);
+    if (!userId) throw new Error('User ID is required');
     
-    const assessments = [];
-    querySnapshot.forEach((doc) => {
-      assessments.push({
-        id: doc.id,
-        ...doc.data(),
-        completedAt: doc.data().completedAt?.toDate(),
-      });
-    });
-    
-    return assessments;
+    const [childrenSnapshot, assessmentsSnapshot] = await Promise.all([
+      getDocs(query(collection(db, 'children'), where('userId', '==', userId))),
+      getDocs(query(collection(db, 'assessments'), where('userId', '==', userId)))
+    ]);
+
+    return {
+      childrenCount: childrenSnapshot.size,
+      assessmentCount: assessmentsSnapshot.size,
+    };
   } catch (error) {
-    console.error('Error getting all assessments:', error);
-    handleFirebaseError(error);
+    console.error('Error getting user stats:', error);
     throw error;
   }
 };

@@ -71,7 +71,7 @@ const WelcomeScreen = () => {
           </TouchableOpacity>
           
           <View style={styles.authPrompt}>
-            <Text style={styles.authPromptText}>New to AutiScan? </Text>
+            <Text style={styles.authPromptText}>New to AutiCare? </Text>
             <TouchableOpacity onPress={handleSignUpPress}>
               <Text style={styles.authLink}>Create Account</Text>
             </TouchableOpacity>

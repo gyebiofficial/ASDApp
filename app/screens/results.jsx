@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useUser } from '@clerk/clerk-expo'; // ✅ ADD THIS IMPORT
 import {
   View,
   Text,
@@ -232,6 +233,7 @@ const StatisticsCard = ({ children, assessments }) => {
 
 // Main Results Screen Component
 const ResultsScreen = () => {
+  const { user, isLoaded } = useUser();
   const router = useRouter();
   const [children, setChildren] = useState([]);
   const [assessments, setAssessments] = useState([]);
@@ -239,18 +241,55 @@ const ResultsScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
+  // ✅ ADD THIS MISSING FUNCTION
+  const handleBackPress = () => {
+    router.back();
+  };
+
+  // ✅ ADD THESE MISSING HELPER FUNCTIONS TOO
+  const childrenWithAssessments = () => {
+    return children.filter(child => 
+      assessments.some(assessment => assessment.childId === child.id)
+    );
+  };
+
+  const getAssessmentsForChild = (childId) => {
+    return assessments
+      .filter(assessment => assessment.childId === childId)
+      .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+  };
+
+  const handleViewChildDetails = (child, assessments) => {
+    // Navigate to child details or assessment history
+    router.push({
+      pathname: '/screens/child-details',
+      params: { 
+        childId: child.id,
+        childName: child.fullName 
+      }
+    });
+  };
+
   useEffect(() => {
-    loadData();
-  }, []);
+    if (isLoaded && user?.id) {  // ✅ ADD USER CHECK
+      loadData();
+    }
+  }, [isLoaded, user?.id]);
 
   const loadData = async () => {
+    if (!user?.id) {  // ✅ ADD USER CHECK
+      console.log('No user ID available for loading data');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
       
       const [childrenData, assessmentsData] = await Promise.all([
-        getAllChildren(),
-        getAllAssessments()
+        getAllChildren(user.id),     // ✅ ADD user.id
+        getAllAssessments(user.id)   // ✅ ADD user.id
       ]);
       
       setChildren(childrenData);
@@ -265,37 +304,42 @@ const ResultsScreen = () => {
   };
 
   const onRefresh = async () => {
+    if (!user?.id) return;  // ✅ ADD USER CHECK
+    
     setRefreshing(true);
     await loadData();
     setRefreshing(false);
   };
 
-  const handleViewChildDetails = (child, childAssessments) => {
-    // Navigate to detailed view for specific child
-    router.push({
-      pathname: '/screens/child-detail',
-      params: {
-        childId: child.id,
-        childName: child.fullName,
-      }
-    });
-  };
+  // ✅ ADD EARLY RETURNS FOR LOADING STATES
+  if (!isLoaded) {
+    return (
+      <LinearGradient colors={['#0F172A', '#1E293B']} style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.white} />
+          <Text style={styles.loadingText}>Loading user...</Text>
+        </View>
+      </LinearGradient>
+    );
+  }
 
-  const handleBackPress = () => {
-    router.push('/screens/home');
-  };
+  if (!user) {
+    return (
+      <LinearGradient colors={['#0F172A', '#1E293B']} style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Please sign in to view results</Text>
+          <TouchableOpacity 
+            style={{ marginTop: 20, padding: 12, backgroundColor: '#1E40AF', borderRadius: 8 }}
+            onPress={() => router.replace('/(auth)/sign-in')}
+          >
+            <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>Sign In</Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+    );
+  }
 
-  // Group assessments by child
-  const getAssessmentsForChild = (childId) => {
-    return assessments
-      .filter(assessment => assessment.childId === childId)
-      .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
-  };
-
-  const childrenWithAssessments = children.filter(child =>
-    assessments.some(assessment => assessment.childId === child.id)
-  );
-
+  // ✅ EXISTING LOADING STATE (keep this)
   if (loading) {
     return (
       <LinearGradient colors={['#0F172A', '#1E293B']} style={styles.container}>
@@ -359,7 +403,7 @@ const ResultsScreen = () => {
               </View>
             )}
 
-            {childrenWithAssessments.length === 0 ? (
+            {childrenWithAssessments().length === 0 ? (
               <View style={styles.emptyState}>
                 <Feather name="clipboard" size={64} color={COLORS.textMuted} />
                 <Text style={styles.emptyStateTitle}>No Assessment Results</Text>
@@ -377,7 +421,7 @@ const ResultsScreen = () => {
                 </TouchableOpacity>
               </View>
             ) : (
-              childrenWithAssessments.map((child) => (
+              childrenWithAssessments().map((child) => (
                 <ChildAssessmentCard
                   key={child.id}
                   child={child}

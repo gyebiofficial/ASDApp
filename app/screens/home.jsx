@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Animated, Dimensions, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Animated, Dimensions, Platform, StatusBar, ActivityIndicator } from 'react-native';
 import { useUser, useAuth } from '@clerk/clerk-expo';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,33 +8,29 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import childImg from 'C:/Users/gyebi/Desktop/Autism Detection App/ASDApp/assets/images/child.png';
-import { getAllAssessments, getAllChildren } from '../services/firebaseService';
+import { getAllAssessments, getAllChildren, getUserStats } from '../services/firebaseService';
 import AppHeader from '../components/AppHeader';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export default function Home() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const { signOut } = useAuth();
   const router = useRouter();
 
-  // Animation refs
+  // ✅ KEEP ALL HOOKS HERE - Don't move these after early returns
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
-
-  // Sidebar states
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const sidebarAnim = useRef(new Animated.Value(-SCREEN_WIDTH * 0.75)).current;
   const [profileSidebarVisible, setProfileSidebarVisible] = useState(false);
   const profileSidebarAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
-
-  // Statistics states
   const [assessmentCount, setAssessmentCount] = useState(0);
   const [daysActive, setDaysActive] = useState(1);
   const [childrenCount, setChildrenCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Component mount animation
+  // ✅ KEEP ALL useEffect HOOKS HERE
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -50,63 +46,64 @@ export default function Home() {
     ]).start();
   }, []);
 
-  // Load statistics data on component mount
   useEffect(() => {
-    loadStatistics();
-  }, []);
+    if (isLoaded && user?.id) {
+      loadUserData();
+    } else if (isLoaded && !user) {
+      setAssessmentCount(0);
+      setChildrenCount(0);
+      setDaysActive(1);
+      setLoading(false);
+    }
+  }, [isLoaded, user?.id]);
 
-  // Load statistics data function
-  const loadStatistics = async () => {
+  useEffect(() => {
+    const unsubscribe = router.addListener?.('focus', () => {
+      if (isLoaded && user?.id) {
+        loadUserData();
+      }
+    });
+    return unsubscribe;
+  }, [router, isLoaded, user?.id]);
+
+  // ✅ DEFINE ALL FUNCTIONS HERE
+  const loadUserData = async () => {
+    if (!isLoaded) {
+      console.log('User not loaded yet, waiting...');
+      return;
+    }
+    
+    if (!user?.id) {
+      console.log('No user logged in');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
+      console.log('Loading data for user:', user.id);
       
-      // Get assessments and children data
-      const [assessments, children] = await Promise.all([
-        getAllAssessments(),
-        getAllChildren()
-      ]);
-
-      // Set assessment count
-      setAssessmentCount(assessments.length);
+      const stats = await getUserStats(user.id);
+      setAssessmentCount(stats.assessmentCount);
+      setChildrenCount(stats.childrenCount);
       
-      // Set children count
-      setChildrenCount(children.length);
+      const userCreatedAt = user?.createdAt ? new Date(user.createdAt) : new Date();
+      const today = new Date();
+      const diffTime = Math.abs(today - userCreatedAt);
+      const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+      setDaysActive(diffDays);
 
-      // Calculate days active
-      if (assessments.length > 0) {
-        const firstAssessment = assessments.reduce((earliest, current) => {
-          return new Date(current.completedAt) < new Date(earliest.completedAt) ? current : earliest;
-        });
-        
-        const firstDate = new Date(firstAssessment.completedAt);
-        const today = new Date();
-        const diffTime = Math.abs(today - firstDate);
-        const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-        setDaysActive(diffDays);
-      } else {
-        const userCreatedAt = user?.createdAt ? new Date(user.createdAt) : new Date();
-        const today = new Date();
-        const diffTime = Math.abs(today - userCreatedAt);
-        const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-        setDaysActive(diffDays);
-      }
+      console.log(`User ${user.id} stats loaded:`, stats);
+      
     } catch (error) {
-      console.error('Error loading statistics:', error);
+      console.error('Error loading user data:', error);
       setAssessmentCount(0);
-      setDaysActive(1);
       setChildrenCount(0);
+      setDaysActive(1);
     } finally {
       setLoading(false);
     }
   };
-
-  // Refresh data when screen comes into focus
-  useEffect(() => {
-    const unsubscribe = router.addListener?.('focus', () => {
-      loadStatistics();
-    });
-    return unsubscribe;
-  }, [router]);
 
   const handleSignOut = async () => {
     Alert.alert(
@@ -183,6 +180,38 @@ export default function Home() {
     return 'Good Evening';
   };
 
+  // ✅ NOW PUT EARLY RETURNS AFTER ALL HOOKS AND FUNCTIONS
+  if (!isLoaded) {
+    return (
+      <View style={[styles.root, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#1E40AF" />
+        <Text style={{ marginTop: 16, color: '#64748B' }}>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (!user) {
+    return (
+      <View style={[styles.root, { justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
+        <Text style={{ fontSize: 18, color: '#1E293B', textAlign: 'center', marginBottom: 20 }}>
+          Please sign in to continue
+        </Text>
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#1E40AF',
+            paddingVertical: 12,
+            paddingHorizontal: 24,
+            borderRadius: 8,
+          }}
+          onPress={() => router.replace('/(auth)/sign-in')}
+        >
+          <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>Sign In</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // ✅ MAIN COMPONENT JSX GOES HERE
   return (
     <View style={styles.root}>
       <StatusBar barStyle="light-content" backgroundColor="#1E40AF" />

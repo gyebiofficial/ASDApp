@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Picker } from '@react-native-picker/picker';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useUser } from '@clerk/clerk-expo'; // Add this import if missing
 
 // Import Firebase services
 import { addChild, getAllChildren, deleteChild } from '../services/firebaseService';
@@ -138,6 +139,7 @@ const formatDateDisplay = (year, month, day) => {
 };
 
 const ChildrenScreen = () => {
+  const { user, isLoaded } = useUser(); // Add this line
   const router = useRouter();
   const [children, setChildren] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -156,27 +158,38 @@ const ChildrenScreen = () => {
 
   // Load children on component mount
   useEffect(() => {
-    loadChildren();
-  }, []);
+    if (isLoaded && user?.id) {
+      loadChildren();
+    }
+  }, [isLoaded, user?.id]); // ✅ Watch for user changes
 
   const loadChildren = async () => {
+    if (!isLoaded || !user?.id) {
+      console.log('User not ready for loading children');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const childrenData = await getAllChildren();
+      const childrenData = await getAllChildren(user.id); // ✅ ADD user.id
       setChildren(childrenData);
     } catch (error) {
-      // Error is already handled in firebaseService, just log here
       console.error('Error in loadChildren:', error);
-      // Don't show additional alert since handleFirebaseError already did
     } finally {
       setLoading(false);
     }
   };
 
   const refreshChildren = async () => {
+    if (!user?.id) {
+      console.log('No user ID for refresh');
+      return;
+    }
+
     try {
       setRefreshing(true);
-      const childrenData = await getAllChildren();
+      const childrenData = await getAllChildren(user.id); // ✅ ADD user.id
       setChildren(childrenData);
     } catch (error) {
       console.error('Error refreshing children:', error);
@@ -251,12 +264,13 @@ const ChildrenScreen = () => {
 
   // Handle adding a new child
   const handleAddChild = async () => {
+    if (!user?.id) {
+      Alert.alert('Error', 'User not authenticated');
+      return;
+    }
+
     if (!validateForm()) {
-      Alert.alert(
-        'Validation Error', 
-        'Please correct the errors and try again.',
-        [{ text: 'OK', style: 'default' }]
-      );
+      Alert.alert('Validation Error', 'Please correct the errors and try again.');
       return;
     }
 
@@ -276,7 +290,7 @@ const ChildrenScreen = () => {
 
     try {
       setLoading(true);
-      const childId = await addChild(childData);
+      const childId = await addChild(childData, user.id); // ✅ ADD user.id
       
       // Reload children from Firebase
       await loadChildren();
@@ -299,7 +313,6 @@ const ChildrenScreen = () => {
         [{ text: 'Great!', style: 'default' }]
       );
     } catch (error) {
-      // Error already handled in firebaseService
       console.error('Error in handleAddChild:', error);
     } finally {
       setLoading(false);
@@ -308,6 +321,11 @@ const ChildrenScreen = () => {
 
   // Handle deleting a child
   const handleDeleteChild = (id, name) => {
+    if (!user?.id) {
+      Alert.alert('Error', 'User not authenticated');
+      return;
+    }
+
     Alert.alert(
       'Delete Child',
       `Are you sure you want to delete ${name} and all their assessments?`,
@@ -319,11 +337,10 @@ const ChildrenScreen = () => {
           onPress: async () => {
             try {
               setLoading(true);
-              await deleteChild(id);
-              await loadChildren(); // Reload from Firebase
+              await deleteChild(id, user.id); // ✅ ADD user.id
+              await loadChildren();
               Alert.alert('Success', 'Child deleted successfully.');
             } catch (error) {
-              // Error already handled in firebaseService
               console.error('Error in handleDeleteChild:', error);
             } finally {
               setLoading(false);
@@ -510,6 +527,18 @@ const ChildrenScreen = () => {
         <View style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
           <ActivityIndicator size="large" color={COLORS.primary} />
           <Text style={{ marginTop: 16, color: COLORS.textLight }}>Loading children...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Add early return for loading state
+  if (!isLoaded) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#4F46E5" />
+          <Text style={{ marginTop: 16, color: '#64748B' }}>Loading...</Text>
         </View>
       </SafeAreaView>
     );
