@@ -466,7 +466,7 @@ const AddChildForm = ({ visible, onClose, onSave }) => {
 };
 
 // Child Selection Modal Component
-const ChildSelectionModal = ({ visible, onClose, children, onSelectChild }) => {
+const ChildSelectionModal = ({ visible, onClose, children, onSelectChild, router }) => {
   const renderChildItem = ({ item }) => (
     <TouchableOpacity
       style={styles.childSelectionCard}
@@ -514,8 +514,7 @@ const ChildSelectionModal = ({ visible, onClose, children, onSelectChild }) => {
                 style={styles.emptyStateButton} 
                 onPress={() => {
                   onClose();
-                  // Navigate to children management
-                  router.push('/screens/children');
+                  router.push('/screens/children'); // ✅ Now router is available
                 }}
               >
                 <LinearGradient colors={['#1E40AF', '#3B82F6']} style={styles.emptyStateButtonGradient}>
@@ -536,6 +535,20 @@ const ChildSelectionModal = ({ visible, onClose, children, onSelectChild }) => {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.childSelectionList}
               />
+
+              {/* Add New Child Button */}
+              <TouchableOpacity
+                style={[styles.addChildButton, { marginTop: 16 }]}
+                onPress={() => {
+                  onClose();
+                  router.push('/screens/children'); // ✅ Now router is available
+                }}
+              >
+                <LinearGradient colors={['#059669', '#10B981']} style={styles.addChildButtonGradient}>
+                  <Feather name="plus" size={20} color="#FFFFFF" />
+                  <Text style={styles.addChildButtonText}>Add New Child</Text>
+                </LinearGradient>
+              </TouchableOpacity>
             </>
           )}
         </View>
@@ -900,6 +913,7 @@ const DetectScreen = () => {
           onClose={() => setShowChildSelection(false)}
           children={children}
           onSelectChild={handleSelectChild}
+          router={router} // ✅ Pass router as prop
         />
       </LinearGradient>
     );

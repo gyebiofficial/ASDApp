@@ -245,7 +245,7 @@ const ChatbotScreen = ({ navigation }) => {
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>AutiScan AI Assistant</Text>
+          <Text style={styles.headerTitle}>AutCare AI Assistant</Text>
           <Text style={styles.headerSubtitle}>Autism Support & Information</Text>
         </View>
         <View style={styles.headerRight}>
