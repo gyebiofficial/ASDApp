@@ -54,7 +54,7 @@ const ChatbotScreen = ({ navigation }) => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hello! I\'m your AutiScan AI assistant. I\'m here to help answer questions about Autism Spectrum Disorder, including symptoms, diagnosis, treatments, and therapies. How can I assist you today?'
+      content: 'Hello! I\'m your AutiCare AI assistant. I\'m here to help answer questions about Autism Spectrum Disorder, including symptoms, diagnosis, treatments, and therapies. How can I assist you today?'
     }
   ]);
   const [loading, setLoading] = useState(false);
@@ -245,7 +245,7 @@ const ChatbotScreen = ({ navigation }) => {
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>AutCare AI Assistant</Text>
+          <Text style={styles.headerTitle}>AutiCare AI Assistant</Text>
           <Text style={styles.headerSubtitle}>Autism Support & Information</Text>
         </View>
         <View style={styles.headerRight}>

@@ -245,7 +245,7 @@ export default function Home() {
           </View>
 
           <View style={styles.profileActions}>
-            <TouchableOpacity style={styles.profileActionButton}
+            {/* <TouchableOpacity style={styles.profileActionButton}
               onPress={() => {
                 closeProfileSidebar();
                 setTimeout(() => {
@@ -254,12 +254,12 @@ export default function Home() {
               }}>
               <Feather name="edit" size={20} color="#1E40AF" />
               <Text style={styles.profileActionText}>Edit Profile</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             
-            <TouchableOpacity style={styles.profileActionButton}>
+            {/* <TouchableOpacity style={styles.profileActionButton}>
               <Feather name="user-plus" size={20} color="#1E40AF" />
               <Text style={styles.profileActionText}>Manage Accounts</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             
             <TouchableOpacity style={styles.profileActionButton}
               onPress={() => router.replace('/screens/resources')}>
@@ -370,6 +370,8 @@ export default function Home() {
                 { icon: 'users', title: 'Manage Children', subtitle: 'Add or edit child profiles', color: '#F59E0B', route: '/screens/children' },
                 { icon: 'book-open', title: 'Resources', subtitle: 'Educational content', color: '#8B5CF6', route: '/screens/resources' },
                 { icon: 'bar-chart-2', title: 'View Results', subtitle: 'Check past assessments', color: '#3B82F6', route: '/screens/results' },
+                { icon: 'trending-up', title: 'Milestone Tracker', subtitle: 'Track development progress', color: '#EC4899', route: '/screens/milestones' },
+                { icon: 'message-circle', title: 'AI Chatbot', subtitle: 'Ask questions about autism', color: '#06B6D4', route: '/screens/chatbot' },
               ].map((action, index) => (
                 <TouchableOpacity
                   key={index}
@@ -428,7 +430,7 @@ export default function Home() {
                 <Feather name="clock" size={20} color="#64748B" />
               </View>
               <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>Welcome to AutiScan!</Text>
+                <Text style={styles.activityTitle}>Welcome to AutiCare!</Text>
                 <Text style={styles.activitySubtitle}>
                   You've successfully signed in. Start your first assessment to begin your journey.
                 </Text>

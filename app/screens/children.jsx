@@ -91,7 +91,27 @@ const generateDays = (year, month) => {
   return days;
 };
 
-// Utility function to calculate age in years or months
+// Utility function to calculate age in months (what milestone tracker needs)
+const calculateAgeInMonths = (birthDate) => {
+  const today = new Date();
+  const birth = new Date(birthDate);
+
+  let years = today.getFullYear() - birth.getFullYear();
+  let months = today.getMonth() - birth.getMonth();
+  let days = today.getDate() - birth.getDate();
+
+  if (days < 0) {
+    months--;
+  }
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+
+  return Math.max(0, (years * 12) + months);
+};
+
+// Update the existing calculateAge function to be more accurate:
 const calculateAge = (birthDate) => {
   const today = new Date();
   const birth = new Date(birthDate);
@@ -172,7 +192,18 @@ const ChildrenScreen = () => {
 
     try {
       setLoading(true);
-      const childrenData = await getAllChildren(user.id); // ✅ ADD user.id
+      // ✅ getAllChildren now returns children with fresh age calculations
+      const childrenData = await getAllChildren(user.id);
+      
+      console.log('✅ Loaded children from database:', childrenData);
+      childrenData.forEach(child => {
+        console.log(`Child: ${child.fullName}`);
+        console.log(`Birth Date:`, child.birthDate);
+        console.log(`Age in months:`, child.ageInMonths);
+        console.log(`Display: ${child.ageInYears}y ${child.ageInMonthsRemainder}m`);
+        console.log('---');
+      });
+      
       setChildren(childrenData);
     } catch (error) {
       console.error('Error in loadChildren:', error);
@@ -215,14 +246,19 @@ const ChildrenScreen = () => {
       newErrors.lastName = 'Last name must be at least 2 characters';
     }
 
+    // ✅ Fix: Properly construct birth date for validation
     const birthDate = new Date(formData.birthYear, formData.birthMonth, formData.birthDay);
     const today = new Date();
+    
     if (birthDate >= today) {
       newErrors.dateOfBirth = 'Date of birth must be in the past';
     }
 
-    const age = calculateAge(birthDate);
-    if (age > 18) {
+    // ✅ Fix: Calculate age properly for validation
+    const ageInMonths = calculateAgeInMonths(birthDate);
+    const ageInYears = Math.floor(ageInMonths / 12);
+    
+    if (ageInYears > 18) {
       newErrors.dateOfBirth = 'Age must be 18 years or younger';
     }
 
@@ -277,25 +313,33 @@ const ChildrenScreen = () => {
     const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
     const birthDate = new Date(formData.birthYear, formData.birthMonth, formData.birthDay);
     const formattedDate = formatDate(formData.birthYear, formData.birthMonth, formData.birthDay);
+    const ageInMonths = calculateAgeInMonths(birthDate);
+
+    console.log('📝 Creating child with data:');
+    console.log('Birth date:', birthDate);
+    console.log('Age in months:', ageInMonths);
 
     const childData = {
       firstName: formData.firstName.trim(),
       lastName: formData.lastName.trim(),
       fullName: fullName,
-      dateOfBirth: formattedDate,
+      dateOfBirth: formattedDate, // Keep for backward compatibility
+      birthDate: birthDate, // ✅ Primary birth date field
       displayDate: formatDateDisplay(formData.birthYear, formData.birthMonth, formData.birthDay),
       gender: formData.gender.trim(),
-      age: calculateAge(formattedDate),
+      age: calculateAge(birthDate), // Display string
+      ageInMonths: ageInMonths, // ✅ Age in months for calculations
     };
 
     try {
       setLoading(true);
-      const childId = await addChild(childData, user.id); // ✅ ADD user.id
+      const childId = await addChild(childData, user.id);
+      console.log('✅ Child added successfully with ID:', childId);
       
-      // Reload children from Firebase
+      // Reload children to get fresh data from database
       await loadChildren();
       
-      // Reset form and show success
+      // Reset form
       const currentDate = new Date();
       setFormData({
         firstName: '',
@@ -313,7 +357,8 @@ const ChildrenScreen = () => {
         [{ text: 'Great!', style: 'default' }]
       );
     } catch (error) {
-      console.error('Error in handleAddChild:', error);
+      console.error('❌ Error in handleAddChild:', error);
+      Alert.alert('Error', 'Failed to add child. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -353,28 +398,16 @@ const ChildrenScreen = () => {
 
   // Handle start assessment
   const handleStartAssessment = (child) => {
-    // Try different routing approaches
+    // Pass the age in months for milestone tracker compatibility
     router.push({
-      pathname: '/screens/detect', // if using tabs
+      pathname: '/screens/detect',
       params: { 
         childId: child.id,
         childName: child.fullName,
-        childAge: child.age
+        childAge: child.ageInMonths || 0, // ✅ Pass age in months
+        childAgeDisplay: child.age // ✅ Pass display age too
       } 
     });
-    
-    // OR try this if it's a screen route:
-    // router.push({
-    //   pathname: '/detect',
-    //   params: { 
-    //     childId: child.id,
-    //     childName: child.fullName,
-    //     childAge: child.age
-    //   } 
-    // });
-    
-    // OR try this simpler approach:
-    // router.push(`/detect?childId=${child.id}&childName=${child.fullName}&childAge=${child.age}`);
   };
 
   // Render individual child card
@@ -389,7 +422,13 @@ const ChildrenScreen = () => {
         <View style={styles.childCardInfo}>
           <Text style={styles.childName}>{item.fullName}</Text>
           <Text style={styles.childAge}>
-            {item.age ? `${item.age} old` : 'Age not available'}
+            {/* ✅ Better age display with fallback */}
+            {item.ageInMonths 
+              ? `${Math.floor(item.ageInMonths/12)} years, ${item.ageInMonths%12} months old`
+              : item.age 
+                ? `${item.age} old` 
+                : 'Age not available'
+            }
           </Text>
         </View>
         <TouchableOpacity
@@ -563,8 +602,8 @@ const ChildrenScreen = () => {
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Children Management</Text>
-          <Text style={styles.headerSubtitle}>Add and manage your children's information</Text>
+          <Text style={styles.headerTitle}>Child Management</Text>
+          <Text style={styles.headerSubtitle}>Add and manage your child's information</Text>
         </View>
 
         {/* Form Section */}

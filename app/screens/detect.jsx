@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useUser } from '@clerk/clerk-expo';
 import { addAssessment, getAllChildren } from '../services/firebaseService';
+import ResourcesCard from '../components/ResourcesCard';
 
 // Scoring function
 export function scoreMCHAT(answers, questions) {
@@ -820,6 +821,9 @@ const DetectScreen = () => {
                 {getRiskLevelMessage(result.riskLevel)}
               </Text>
             </View>
+
+            {/* ✅ ADD THIS - Ghana Resources Card for Medium and High Risk */}
+            <ResourcesCard riskLevel={result.riskLevel} />
 
             <View style={styles.resultActions}>
               <TouchableOpacity style={styles.retakeButton} onPress={resetScreening}>

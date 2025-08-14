@@ -67,7 +67,7 @@ const ResourcesScreen = () => {
       },
       {
         title: 'Key Facts About ASD',
-        content: '• 1 in 36 children has been identified with autism\n• Boys are 4 times more likely to be diagnosed\n• Early intervention can significantly improve outcomes\n• Autism affects people of all racial, ethnic, and socioeconomic groups',
+        content: '• 1 in 87 children under age of 3 has been identified with autism\n• Boys are 4 times more likely to be diagnosed\n• Early intervention can significantly improve outcomes\n• Autism affects people of all racial, ethnic, and socioeconomic groups',
         type: 'stats',
       },
       {
